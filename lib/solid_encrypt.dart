@@ -17,4 +17,4 @@ part 'enc_client.dart';
 part 'key_hash.dart';
 
 /// Local storage instance
-final LocalStorage APP_STORAGE = new LocalStorage('app_storage');
+final LocalStorage appStorage = LocalStorage('app_storage');

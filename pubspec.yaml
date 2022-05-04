@@ -16,7 +16,7 @@ dependencies:
   crypto: ^3.0.2
 
   # Solid auth package
-  solid_auth: ^0.1.3
+  solid_auth: ^0.1.4
 
   # Local storage package
   localstorage: ^4.0.0+1

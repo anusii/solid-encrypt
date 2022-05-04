@@ -19,14 +19,12 @@ String fileBoby = '<> <http://purl.org/dc/terms/title> "Basic resource" .';
 class EncryptClient {
   Map authData = {};
   String webId = '';
-  var rsaInfo;
-  var rsaKeyPair;
-  var publicKeyJwk;
-  var accessToken;
+  dynamic rsaInfo;
+  dynamic rsaKeyPair;
+  dynamic publicKeyJwk;
+  dynamic accessToken;
 
-  EncryptClient(Map authData, String webId) {
-    this.authData = authData;
-    this.webId = webId;
+  EncryptClient(this.authData, this.webId) {
     rsaInfo = authData['rsaInfo'];
     rsaKeyPair = rsaInfo['rsa'];
     publicKeyJwk = rsaInfo['pubKeyJwk'];
@@ -71,7 +69,7 @@ class EncryptClient {
     String fileContent = await fetchFile(filePath + '/' + fileName);
 
     /// Get encryption key that is stored in the local storage
-    String encKey = APP_STORAGE.getItem('encKey');
+    String encKey = appStorage.getItem('encKey');
 
     /// Encrypt the plaintext file content
     String encryptValStr = encryptVal(encKey, fileContent);
@@ -103,7 +101,7 @@ class EncryptClient {
         }
 
         /// Update the list of encrypted file locations in the server 
-        if(!fileListStr.isEmpty){
+        if(fileListStr.isNotEmpty){
           String encKeyFileUrl = webId.replaceAll('profile/card#me', encKeyFileLoc);
           String fileListStrEnc = encryptVal(encKey, fileListStr);
           String dPopToken = genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
@@ -473,13 +471,13 @@ class EncryptClient {
 
   /// Store the encryption key in the local storage
   void setEncKeyStorage(String encKey){
-    APP_STORAGE.setItem('encKey', encKey);
+    appStorage.setItem('encKey', encKey);
   }
 
   /// Check if encryption key is already stored in the
   /// local storage
   bool checkEncKeyStorage(){
-    if(APP_STORAGE.getItem('encKey') != null){
+    if(appStorage.getItem('encKey') != null){
       return true;
     }
     else{
@@ -489,6 +487,6 @@ class EncryptClient {
 
   /// Remove encryption key from the local storage
   void removeEncKeyStorage(){
-    APP_STORAGE.deleteItem('encKey');
+    appStorage.deleteItem('encKey');
   }
 }
