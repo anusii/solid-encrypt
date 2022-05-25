@@ -33,39 +33,40 @@ class EncryptClient {
 
   /// Set up encryption key by creating a directory and a ttl file to store the key
   Future<String> setupEncKey(String plainEncKey) async {
-    String sha224Result = sha224.convert(utf8.encode(plainEncKey))
-        .toString().substring(0, 32);
-    String sha256Result = sha256.convert(utf8.encode(plainEncKey))
-        .toString().substring(0, 32);
+    String sha224Result =
+        sha224.convert(utf8.encode(plainEncKey)).toString().substring(0, 32);
+    String sha256Result =
+        sha256.convert(utf8.encode(plainEncKey)).toString().substring(0, 32);
 
     /// Create a directory
     var dirCreateRes = await createItem(false, encKeyFileDir, dirBody);
 
     /// Create a ttl file to store the key
-    String subUrl = webId.replaceAll('profile/card#me', '$encKeyFileDir/$encKeyFileName');
-    String keyFileBody = '<$subUrl> <http://purl.org/dc/terms/title> "Encryption keys";' +
-                         '\n    <$encKeyPred> "$sha224Result";' + '\n    <$encFilePred> "".';
-    var fileCreateRes = await createItem(true, encKeyFileName, keyFileBody, 
-                                         fileLoc: encKeyFileDir);
+    String subUrl =
+        webId.replaceAll('profile/card#me', '$encKeyFileDir/$encKeyFileName');
+    String keyFileBody =
+        '<$subUrl> <http://purl.org/dc/terms/title> "Encryption keys";' +
+            '\n    <$encKeyPred> "$sha224Result";' +
+            '\n    <$encFilePred> "".';
+    var fileCreateRes = await createItem(true, encKeyFileName, keyFileBody,
+        fileLoc: encKeyFileDir);
 
-    if(fileCreateRes == 'ok' && dirCreateRes == 'ok'){
+    if (fileCreateRes == 'ok' && dirCreateRes == 'ok') {
       /// Set encryption key in the local storage
       setEncKeyStorage(sha256Result);
       return fileCreateRes;
-    }
-    else{
+    } else {
       throw Exception('Failed to set up encryption key.');
     }
   }
 
   /// Check if an encryption key is setup
   Future<bool> checkEncSetup() async {
-
     /// Get encryption key file from URL
     try {
-      var keyInfo = await fetchFile(encKeyFileLoc);
+      await fetchFile(encKeyFileLoc);
       return true;
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   }
@@ -75,8 +76,9 @@ class EncryptClient {
   /// and store the ciphertext in the same file
   Future<void> encryptFile(String filePath, String fileName) async {
     /// Encryption file URL
-    String encFileUrl = webId.replaceAll('profile/card#me', filePath + '/' + fileName);
-    
+    String encFileUrl =
+        webId.replaceAll('profile/card#me', filePath + '/' + fileName);
+
     /// Get plaintext file content
     String fileContent = await fetchFile(filePath + '/' + fileName);
 
@@ -89,53 +91,58 @@ class EncryptClient {
     /// Delete the existing file with plaintext and create a new file with ciphertext
     String delResponse = await deleteItem(false, filePath + '/' + fileName);
 
-    if(delResponse == 'ok'){
-      String dPopToken = genDpopToken(encFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
-      String insertQuery = genSparqlQuery('INSERT', '', encValPred, encryptValStr);
-      String insertResponse = await runQuery(encFileUrl, dPopToken, insertQuery);
-      
-      if(insertResponse == 'ok'){
-        /// Get the list of locations of files that are encrypted 
+    if (delResponse == 'ok') {
+      String dPopToken =
+          genDpopToken(encFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+      String insertQuery =
+          genSparqlQuery('INSERT', '', encValPred, encryptValStr);
+      String insertResponse =
+          await runQuery(encFileUrl, dPopToken, insertQuery);
+
+      if (insertResponse == 'ok') {
+        /// Get the list of locations of files that are encrypted
         var keyInfo = await fetchFile(encKeyFileLoc);
         EncProfile keyFile = EncProfile(keyInfo.toString());
         String encFileHash = keyFile.getEncFileHash();
-        
-        String fileListStr = ''; /// New list of locations
-        if(encFileHash.isEmpty){
+
+        String fileListStr = '';
+
+        /// New list of locations
+        if (encFileHash.isEmpty) {
           List fileList = ['$filePath/$fileName'];
           fileListStr = jsonEncode(fileList);
-        }
-        else{
+        } else {
           String encFilePlaintext = decryptVal(encKey, encFileHash);
           List fileList = jsonDecode(encFilePlaintext);
           fileList.add('$filePath/$fileName');
           fileListStr = jsonEncode(fileList);
         }
 
-        /// Update the list of encrypted file locations in the server 
-        if(fileListStr.isNotEmpty){
-          String encKeyFileUrl = webId.replaceAll('profile/card#me', encKeyFileLoc);
+        /// Update the list of encrypted file locations in the server
+        if (fileListStr.isNotEmpty) {
+          String encKeyFileUrl =
+              webId.replaceAll('profile/card#me', encKeyFileLoc);
           String fileListStrEnc = encryptVal(encKey, fileListStr);
-          String dPopToken = genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+          String dPopToken =
+              genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
 
-          String updateQuery = genSparqlQuery('UPDATE', '', encFilePred,
-                               fileListStrEnc, prevObject: encFileHash);
+          String updateQuery = genSparqlQuery(
+              'UPDATE', '', encFilePred, fileListStrEnc,
+              prevObject: encFileHash);
 
-          String updateResponse = await runQuery(encKeyFileUrl, dPopToken, updateQuery);
-          
-          if(updateResponse != 'ok'){
+          String updateResponse =
+              await runQuery(encKeyFileUrl, dPopToken, updateQuery);
+
+          if (updateResponse != 'ok') {
             throw Exception('Failed to update encrypted file locations.');
           }
         }
-      }
-      else{
+      } else {
         throw Exception('Failed to encrypt the file.');
       }
-    }
-    else{
+    } else {
       throw Exception('Failed to delete the file! Try again in a while.');
     }
-    
   }
 
   /// Decrypt a file content
@@ -144,7 +151,7 @@ class EncryptClient {
   Future<void> decryptFile(String filePath, String fileName) async {
     /// Encrypted file URL
     //String encFileUrl = webId.replaceAll('profile/card#me', filePath + '/' + fileName);
-    
+
     /// Get ciphertext file content
     String encFilePath = filePath + '/' + fileName;
     String fileContent = await fetchFile(encFilePath);
@@ -168,7 +175,8 @@ class EncryptClient {
     String delResponse = await deleteItem(true, encFilePath);
 
     /// Create new file with plaintext content
-    String fileCreateRes = await createItem(true, fileName, plainFileCont, fileLoc: filePath);
+    String fileCreateRes =
+        await createItem(true, fileName, plainFileCont, fileLoc: filePath);
 
     /// Update the list of encrypted files
     encFileList.remove(encFilePath);
@@ -176,31 +184,41 @@ class EncryptClient {
 
     String encKeyFileUrl = webId.replaceAll('profile/card#me', encKeyFileLoc);
     String fileListStrEnc = encryptVal(encKey, newFileListStr);
-    String dPopToken = genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
-    String updateQuery = genSparqlQuery('UPDATE', '', encFilePred,
-                          fileListStrEnc, prevObject: encFileHash);
+    String dPopToken =
+        genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+    String updateQuery = genSparqlQuery(
+        'UPDATE', '', encFilePred, fileListStrEnc,
+        prevObject: encFileHash);
 
-    String updateResponse = await runQuery(encKeyFileUrl, dPopToken, updateQuery);
+    String updateResponse =
+        await runQuery(encKeyFileUrl, dPopToken, updateQuery);
 
-    if(delResponse != 'ok' || fileCreateRes != 'ok' || updateResponse != 'ok'){
+    if (delResponse != 'ok' ||
+        fileCreateRes != 'ok' ||
+        updateResponse != 'ok') {
       throw Exception('Failed to revoke encrypted file $encFilePath.');
     }
   }
 
   /// Update/change encryption key
   /// Need to re-encrypt all the encrypted files using the new key
-  Future<String> updateEncKey(String plainPrevEncKey, String plainNewEncKey) async {
-
+  Future<String> updateEncKey(
+      String plainPrevEncKey, String plainNewEncKey) async {
     /// Verify old encryption key before moving forward
-    if(await verifyEncKey(plainPrevEncKey)){
-
+    if (await verifyEncKey(plainPrevEncKey)) {
       /// Create hash values for old and new encrypted keys
-      String newKeyHash = sha224.convert(utf8.encode(plainNewEncKey))
-          .toString().substring(0, 32);
-      String newEncKey = sha256.convert(utf8.encode(plainNewEncKey))
-          .toString().substring(0, 32);
-      String prevEncKey = sha256.convert(utf8.encode(plainPrevEncKey))
-          .toString().substring(0, 32);
+      String newKeyHash = sha224
+          .convert(utf8.encode(plainNewEncKey))
+          .toString()
+          .substring(0, 32);
+      String newEncKey = sha256
+          .convert(utf8.encode(plainNewEncKey))
+          .toString()
+          .substring(0, 32);
+      String prevEncKey = sha256
+          .convert(utf8.encode(plainPrevEncKey))
+          .toString()
+          .substring(0, 32);
 
       /// Get the previous key and the list of locations of files that are encrypted
       var keyInfo = await fetchFile(encKeyFileLoc);
@@ -214,7 +232,7 @@ class EncryptClient {
 
       /// Loop over each encrypted file and re-encrypt the content using
       /// new encryption key
-      for(var i = 0; i< encFileList.length; i++) {
+      for (var i = 0; i < encFileList.length; i++) {
         String encFilePath = encFileList[i];
         var fileInfo = await fetchFile(encFilePath);
         EncProfile encFile = EncProfile(fileInfo.toString());
@@ -224,53 +242,60 @@ class EncryptClient {
         String newEncFileCont = encryptVal(newEncKey, plainFileCont);
 
         String encFileUrl = webId.replaceAll('profile/card#me', encFilePath);
-        String dPopToken = genDpopToken(encFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+        String dPopToken =
+            genDpopToken(encFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
 
-        String fileUpdateQuery = genSparqlQuery('UPDATE', '', encValPred,
-                                 newEncFileCont, prevObject: encFileCont);
+        String fileUpdateQuery = genSparqlQuery(
+            'UPDATE', '', encValPred, newEncFileCont,
+            prevObject: encFileCont);
 
-        String fileContupdate = await runQuery(encFileUrl, dPopToken, fileUpdateQuery);
+        String fileContupdate =
+            await runQuery(encFileUrl, dPopToken, fileUpdateQuery);
 
-        if(fileContupdate == 'ok'){
+        if (fileContupdate == 'ok') {
           continue;
-        }
-        else{
+        } else {
           throw Exception('Failed to update encrypted file $encFilePath.');
         }
       }
 
       /// Update the encryption key hash with new key
       String encKeyUrl = webId.replaceAll('profile/card#me', encKeyFileLoc);
-      String dPopToken = genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+      String dPopToken =
+          genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
 
-      String updateQuery = genSparqlQuery('UPDATE', '', encKeyPred,
-                           newKeyHash, prevObject: prevKeyHash);
+      String updateQuery = genSparqlQuery('UPDATE', '', encKeyPred, newKeyHash,
+          prevObject: prevKeyHash);
 
       String updateResponse = await runQuery(encKeyUrl, dPopToken, updateQuery);
-      
-      if(updateResponse == 'ok'){
+
+      if (updateResponse == 'ok') {
         /// Update the list of locations of the encrypted files
         String encFileHashNew = encryptVal(newEncKey, encFilePlaintext);
-        String dPopToken = genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+        String dPopToken =
+            genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
 
-        String updateQuery = genSparqlQuery('UPDATE', '', encFilePred,
-                             encFileHashNew, prevObject: encFileHash);
-        String updateResponse = await runQuery(encKeyUrl, dPopToken, updateQuery);
-        
-        if(updateResponse == 'ok'){
-          removeEncKeyStorage(); /// Remove previous key from local storage
-          setEncKeyStorage(newEncKey); /// Set new key to local storage
+        String updateQuery = genSparqlQuery(
+            'UPDATE', '', encFilePred, encFileHashNew,
+            prevObject: encFileHash);
+        String updateResponse =
+            await runQuery(encKeyUrl, dPopToken, updateQuery);
+
+        if (updateResponse == 'ok') {
+          removeEncKeyStorage();
+
+          /// Remove previous key from local storage
+          setEncKeyStorage(newEncKey);
+
+          /// Set new key to local storage
           return updateResponse;
-        }
-        else{
+        } else {
           throw Exception('Failed to update encrypted file locations.');
         }
-      }
-      else{
+      } else {
         throw Exception('Failed to update new encryption key.');
       }
-    }
-    else{
+    } else {
       throw Exception('Failed to verify the previous encryption key.');
     }
   }
@@ -279,25 +304,20 @@ class EncryptClient {
   /// with their respective plaintext and the encryption key hashes will be
   /// deleted from the server.
   Future<String> revokeEnc(String plainPrevEncKey) async {
-  
     /// Verify old encryption key before moving forward
-    if(await verifyEncKey(plainPrevEncKey)){
-
+    if (await verifyEncKey(plainPrevEncKey)) {
       /// Create hash values for encrypted key
-      String encKey = sha256.convert(utf8.encode(plainPrevEncKey))
-          .toString().substring(0, 32);
-      
+      String encKey = sha256
+          .convert(utf8.encode(plainPrevEncKey))
+          .toString()
+          .substring(0, 32);
+
       /// Get the list of locations of files that are encrypted
-      // var keyInfo = await fetchFile(encKeyFileLoc);
-      // EncProfile keyFile = EncProfile(keyInfo.toString());
-      // String encFileHash = keyFile.getEncFileHash();
-      // String encFilePlaintext = decryptVal(encKey, encFileHash);
-      // List encFileList = jsonDecode(encFilePlaintext);
       List encFileList = await getEncFileList();
 
       /// Loop over each file, decrypt the encrypted values, and write the
       /// plaintext values to the file
-      for(var i = 0; i< encFileList.length; i++) {
+      for (var i = 0; i < encFileList.length; i++) {
         String encFilePath = encFileList[i];
         var fileInfo = await fetchFile(encFilePath);
         EncProfile encFile = EncProfile(fileInfo.toString());
@@ -311,37 +331,32 @@ class EncryptClient {
         String fileDir = filePathList.join('/');
 
         String delResponse = await deleteItem(true, encFilePath);
-        //String createResponse = await decryptFileCreate(fileName, fileDir, plainFileCont);
-        String fileCreateRes = await createItem(true, fileName, plainFileCont, fileLoc: fileDir);
+        String fileCreateRes =
+            await createItem(true, fileName, plainFileCont, fileLoc: fileDir);
 
-        if(delResponse == 'ok' && fileCreateRes == 'ok'){
+        if (delResponse == 'ok' && fileCreateRes == 'ok') {
           continue;
-        }
-        else{
+        } else {
           throw Exception('Failed to revoke encrypted file $encFilePath.');
         }
-
       }
 
       /// Delete the file which stores the encryption keys
       String delKeyFileRes = await deleteItem(true, encKeyFileLoc);
       String delKeyDirRes = await deleteItem(false, encKeyFileDir + '/');
 
-      if(delKeyFileRes == 'ok' && delKeyDirRes == 'ok'){
+      if (delKeyFileRes == 'ok' && delKeyDirRes == 'ok') {
         return 'ok';
-      }
-      else{
+      } else {
         throw Exception('Failed to delete encryption key file.');
-      }  
-    }
-    else{
+      }
+    } else {
       throw Exception('Failed to verify encryption key.');
     }
   }
 
   /// Get a file content from the server
   Future<String> fetchFile(String fileLoc) async {
-
     String fileUrl = webId.replaceAll('profile/card#me', fileLoc);
     String dPopToken = genDpopToken(fileUrl, rsaKeyPair, publicKeyJwk, 'GET');
 
@@ -363,13 +378,12 @@ class EncryptClient {
       // If the server did not return a 200 OK response,
       // then throw an exception.
       throw Exception('Failed to fetch file content! Try again in a while.');
-    } 
+    }
   }
 
   /// Run a sparql query
-  Future<String> runQuery(String queryUrl, String dPopToken, 
-                          String query) async {
-
+  Future<String> runQuery(
+      String queryUrl, String dPopToken, String query) async {
     final editResponse = await http.patch(
       Uri.parse(queryUrl),
       headers: <String, String>{
@@ -383,7 +397,9 @@ class EncryptClient {
       body: query,
     );
 
-    if (editResponse.statusCode == 200 || editResponse.statusCode == 205 || editResponse.statusCode == 201) {
+    if (editResponse.statusCode == 200 ||
+        editResponse.statusCode == 205 ||
+        editResponse.statusCode == 201) {
       // If the server did return a 200 OK response,
       // then parse the JSON.
       return 'ok';
@@ -396,29 +412,30 @@ class EncryptClient {
 
   /// Create a directory or a file
   Future<String> createItem(bool fileFlag, String itemName, String itemBody,
-                            {String? fileLoc}) async {
-
+      {String? fileLoc}) async {
     String itemLoc = '';
     String itemSlug = '';
     String itemType = '';
     String contentType = '';
 
     /// Set up directory or file parameters
-    if(fileFlag){ /// This is a file (resource)
+    if (fileFlag) {
+      /// This is a file (resource)
       itemLoc = fileLoc!;
       itemSlug = itemName;
       contentType = 'text/turtle';
       itemType = '<http://www.w3.org/ns/ldp#Resource>; rel="type"';
-    }
-    else{ /// This is a directory (container)
+    } else {
+      /// This is a directory (container)
       itemSlug = itemName;
       contentType = 'application/octet-stream';
       itemType = '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"';
     }
 
     String encKeyUrl = webId.replaceAll('profile/card#me', itemLoc);
-    String dPopToken = genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'POST');
-    
+    String dPopToken =
+        genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'POST');
+
     /// The POST request will create the item in the server
     final createResponse = await http.post(
       Uri.parse(encKeyUrl),
@@ -446,8 +463,7 @@ class EncryptClient {
   }
 
   /// Encrypt a plaintext value
-  String encryptVal(String encKey, String plaintextVal){
-
+  String encryptVal(String encKey, String plaintextVal) {
     final key = Key.fromUtf8(encKey);
     final iv = IV.fromLength(16);
     final encrypter = Encrypter(AES(key));
@@ -459,8 +475,7 @@ class EncryptClient {
   }
 
   /// Decrypt a ciphertext value
-  String decryptVal(String encKey, String encVal){
-
+  String decryptVal(String encKey, String encVal) {
     final key = Key.fromUtf8(encKey);
     final iv = IV.fromLength(16);
     final encrypter = Encrypter(AES(key));
@@ -473,20 +488,21 @@ class EncryptClient {
 
   /// Delete a file or a directory
   Future<String> deleteItem(bool fileFlag, String itemLoc) async {
-
     String contentType = '';
 
     /// Set up directory or file parameters
-    if(fileFlag){ /// This is a file (resource)
+    if (fileFlag) {
+      /// This is a file (resource)
       contentType = 'text/turtle';
-    }
-    else{ /// This is a directory (container)
+    } else {
+      /// This is a directory (container)
       contentType = 'application/octet-stream';
     }
 
     String encKeyUrl = webId.replaceAll('profile/card#me', itemLoc);
-    String dPopToken = genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'DELETE');
-    
+    String dPopToken =
+        genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'DELETE');
+
     final createResponse = await http.delete(
       Uri.parse(encKeyUrl),
       headers: <String, String>{
@@ -506,11 +522,10 @@ class EncryptClient {
       // If the server did not return a 200 OK response,
       // then throw an exception.
       throw Exception('Failed to delete file! Try again in a while.');
-    } 
+    }
   }
 
   Future<List> getEncFileList() async {
-
     List encFileList;
 
     /// Get the encryption key
@@ -518,67 +533,68 @@ class EncryptClient {
 
     /// Get the list of locations of files that are encrypted
     var keyInfo = await fetchFile(encKeyFileLoc);
-    
+
     EncProfile keyFile = EncProfile(keyInfo.toString());
     String encFileHash = keyFile.getEncFileHash();
 
-    if(encFileHash.isEmpty){
+    if (encFileHash.isEmpty) {
       encFileList = [];
-    }
-    else{
+    } else {
       String encFilePlaintext = decryptVal(encKey, encFileHash);
       encFileList = jsonDecode(encFilePlaintext);
     }
 
     return encFileList;
-    
   }
 
-  /// Encryption key verification with the hash value 
+  /// Encryption key verification with the hash value
   /// stored in the server
   Future<bool> verifyEncKey(String plaintextEncKey) async {
-    String sha224Result = sha224.convert(utf8.encode(plaintextEncKey))
-        .toString().substring(0, 32);
-    String sha256Result = sha256.convert(utf8.encode(plaintextEncKey))
-        .toString().substring(0, 32);
-    
+    String sha224Result = sha224
+        .convert(utf8.encode(plaintextEncKey))
+        .toString()
+        .substring(0, 32);
+    String sha256Result = sha256
+        .convert(utf8.encode(plaintextEncKey))
+        .toString()
+        .substring(0, 32);
+
     var keyInfo = await fetchFile(encKeyFileLoc);
     EncProfile keyFile = EncProfile(keyInfo.toString());
     String encKeyHash = keyFile.getEncKeyHash();
 
-    if(encKeyHash != sha224Result){ /// If the stored hash value is the same
+    if (encKeyHash != sha224Result) {
+      /// If the stored hash value is the same
       return false;
-    }
-    else{ /// If not
+    } else {
+      /// If not
       setEncKeyStorage(sha256Result);
       return true;
     }
-    
   }
 
   /// Store the encryption key in the local storage
-  void setEncKeyStorage(String encKey){
+  void setEncKeyStorage(String encKey) {
     appStorage.setItem('encKey', encKey);
   }
 
   /// Check if encryption key is already stored in the
   /// local storage
-  bool checkEncKeyStorage(){
-    if(appStorage.getItem('encKey') != null){
+  bool checkEncKeyStorage() {
+    if (appStorage.getItem('encKey') != null) {
       return true;
-    }
-    else{
+    } else {
       return false;
     }
   }
 
   /// Get encryption key
-  String getEncKeyStorage(){
+  String getEncKeyStorage() {
     return appStorage.getItem('encKey');
   }
 
   /// Remove encryption key from the local storage
-  void removeEncKeyStorage(){
+  void removeEncKeyStorage() {
     appStorage.deleteItem('encKey');
   }
 }
