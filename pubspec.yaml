@@ -1,6 +1,6 @@
 name: solid_encrypt
 description: A data encryption library which can be used to encrypt the content in turtle files stored in Solid PODs.
-version: 0.1.0
+version: 0.1.2
 homepage: https://github.com/anusii/solid_encrypt
 
 environment:
@@ -13,7 +13,7 @@ dependencies:
 
   # Entryption packages
   encrypt: ^5.0.1
-  crypto: ^3.0.2
+  crypto: ^3.0.1
 
   # Solid auth package
   solid_auth: ^0.1.4

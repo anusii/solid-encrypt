@@ -69,7 +69,7 @@ class EncProfile {
       for (var i = 0; i < rdfDataList.length; i++) {
         String dataItem = rdfDataList[i];
 
-        if(dataItem.contains('silo:encFiles')){
+        if(dataItem.contains('silo:encVal')){
           var itemList = dataItem.trim().split(' ');
           encFileCont = itemList[1].trim().split('"')[1];
         }
@@ -82,7 +82,7 @@ class EncProfile {
 
         if(dataItem.contains('http://silo.net.au/predicates/terms#encVal')){
           var itemList = dataItem.trim().split(' ');
-          encFileCont = itemList[1].trim().split('"')[1];
+          encFileCont = itemList[2].trim().split('"')[1];
         }
       }
     }

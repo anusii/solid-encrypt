@@ -6,3 +6,8 @@ Initial version of the package
 
 * Package updated to have null safety
 * Fix warnings
+
+## 0.1.2
+
+* Fix bugs with http calls
+* Add sample app

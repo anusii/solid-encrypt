@@ -1,9 +1,9 @@
 part of solid_encrypt;
 
-var http;
+//var http;
 
 /// Encryption file/directory naming
-String encKeyFileDir = 'encryption-test';
+String encKeyFileDir = 'encryption';
 String encKeyFileName = 'enc-keys.ttl';
 String encKeyFileLoc = '$encKeyFileDir/$encKeyFileName';
 
@@ -55,6 +55,18 @@ class EncryptClient {
     }
     else{
       throw Exception('Failed to set up encryption key.');
+    }
+  }
+
+  /// Check if an encryption key is setup
+  Future<bool> checkEncSetup() async {
+
+    /// Get encryption key file from URL
+    try {
+      var keyInfo = await fetchFile(encKeyFileLoc);
+      return true;
+    } catch(e) {
+      return false;
     }
   }
 
@@ -124,6 +136,55 @@ class EncryptClient {
       throw Exception('Failed to delete the file! Try again in a while.');
     }
     
+  }
+
+  /// Decrypt a file content
+  /// The function takes ciphertext in an encrypted file, decrypt them using the key,
+  /// and store the plaintext in the same file
+  Future<void> decryptFile(String filePath, String fileName) async {
+    /// Encrypted file URL
+    //String encFileUrl = webId.replaceAll('profile/card#me', filePath + '/' + fileName);
+    
+    /// Get ciphertext file content
+    String encFilePath = filePath + '/' + fileName;
+    String fileContent = await fetchFile(encFilePath);
+    EncProfile encFile = EncProfile(fileContent.toString());
+    String encFileCont = encFile.getEncFileCont();
+
+    /// Get encryption key that is stored in the local storage
+    String encKey = appStorage.getItem('encKey');
+
+    /// Decrypt the ciphertext
+    String plainFileCont = decryptVal(encKey, encFileCont);
+
+    /// Get the list of locations of files that are encrypted
+    var keyInfo = await fetchFile(encKeyFileLoc);
+    EncProfile keyFile = EncProfile(keyInfo.toString());
+    String encFileHash = keyFile.getEncFileHash();
+    String encFilePlaintext = decryptVal(encKey, encFileHash);
+    List encFileList = jsonDecode(encFilePlaintext);
+
+    /// Delete the encrypted file
+    String delResponse = await deleteItem(true, encFilePath);
+
+    /// Create new file with plaintext content
+    String fileCreateRes = await createItem(true, fileName, plainFileCont, fileLoc: filePath);
+
+    /// Update the list of encrypted files
+    encFileList.remove(encFilePath);
+    String newFileListStr = jsonEncode(encFileList);
+
+    String encKeyFileUrl = webId.replaceAll('profile/card#me', encKeyFileLoc);
+    String fileListStrEnc = encryptVal(encKey, newFileListStr);
+    String dPopToken = genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+    String updateQuery = genSparqlQuery('UPDATE', '', encFilePred,
+                          fileListStrEnc, prevObject: encFileHash);
+
+    String updateResponse = await runQuery(encKeyFileUrl, dPopToken, updateQuery);
+
+    if(delResponse != 'ok' || fileCreateRes != 'ok' || updateResponse != 'ok'){
+      throw Exception('Failed to revoke encrypted file $encFilePath.');
+    }
   }
 
   /// Update/change encryption key
@@ -214,8 +275,8 @@ class EncryptClient {
     }
   }
 
-  /// Revoke the encryption. All files that are encrypted will be rewritten
-  /// with thei respective plaintext and the encryption key hashes will be
+  /// Revoke the encryption. All the encrypted files will be rewritten
+  /// with their respective plaintext and the encryption key hashes will be
   /// deleted from the server.
   Future<String> revokeEnc(String plainPrevEncKey) async {
   
@@ -227,11 +288,12 @@ class EncryptClient {
           .toString().substring(0, 32);
       
       /// Get the list of locations of files that are encrypted
-      var keyInfo = await fetchFile(encKeyFileLoc);
-      EncProfile keyFile = EncProfile(keyInfo.toString());
-      String encFileHash = keyFile.getEncFileHash();
-      String encFilePlaintext = decryptVal(encKey, encFileHash);
-      List encFileList = jsonDecode(encFilePlaintext);
+      // var keyInfo = await fetchFile(encKeyFileLoc);
+      // EncProfile keyFile = EncProfile(keyInfo.toString());
+      // String encFileHash = keyFile.getEncFileHash();
+      // String encFilePlaintext = decryptVal(encKey, encFileHash);
+      // List encFileList = jsonDecode(encFilePlaintext);
+      List encFileList = await getEncFileList();
 
       /// Loop over each file, decrypt the encrypted values, and write the
       /// plaintext values to the file
@@ -300,7 +362,7 @@ class EncryptClient {
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
-      throw Exception('Failed fetch file content! Try again in a while.');
+      throw Exception('Failed to fetch file content! Try again in a while.');
     } 
   }
 
@@ -447,6 +509,31 @@ class EncryptClient {
     } 
   }
 
+  Future<List> getEncFileList() async {
+
+    List encFileList;
+
+    /// Get the encryption key
+    String encKey = getEncKeyStorage();
+
+    /// Get the list of locations of files that are encrypted
+    var keyInfo = await fetchFile(encKeyFileLoc);
+    
+    EncProfile keyFile = EncProfile(keyInfo.toString());
+    String encFileHash = keyFile.getEncFileHash();
+
+    if(encFileHash.isEmpty){
+      encFileList = [];
+    }
+    else{
+      String encFilePlaintext = decryptVal(encKey, encFileHash);
+      encFileList = jsonDecode(encFilePlaintext);
+    }
+
+    return encFileList;
+    
+  }
+
   /// Encryption key verification with the hash value 
   /// stored in the server
   Future<bool> verifyEncKey(String plaintextEncKey) async {
@@ -483,6 +570,11 @@ class EncryptClient {
     else{
       return false;
     }
+  }
+
+  /// Get encryption key
+  String getEncKeyStorage(){
+    return appStorage.getItem('encKey');
   }
 
   /// Remove encryption key from the local storage
