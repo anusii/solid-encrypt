@@ -21,6 +21,9 @@ dependencies:
   # Local storage package
   localstorage: ^4.0.0+1
 
+  # Http package
+  http: ^0.13.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
