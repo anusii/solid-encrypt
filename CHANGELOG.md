@@ -11,3 +11,7 @@ Initial version of the package
 
 * Fix bugs with http calls
 * Add sample app
+
+## 0.1.3
+
+* Fix warnings
