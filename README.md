@@ -37,7 +37,7 @@ To use the Solid Encrypt package you will also need the [Solid Auth](https://pub
 ## Usage
 
 To use this package add `solid_encrypt` as a dependency in your `pubspec.yaml` file. 
-<!-- An example project that uses `solid_auth` can be found [here](https://github.com/anusii/solid_auth/tree/main/example).-->
+An example project that uses `solid_auth` can be found [here](https://github.com/anusii/solid_encrypt/tree/main/example).
 
 ### Getting authentication data required for the package
 
