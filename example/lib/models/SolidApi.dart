@@ -115,7 +115,6 @@ String genSparqlQuery(String action, String subject, String predicate, String ob
 }
 
 Future<List> getContainerList(Map authData, String containerUrl) async {
-  //String sampleDataUrl = 'https://silo.net.au/anushka/data/yarrabah_sample_data.json';
 
   List<String> containerList = [];
   List<String> resourceList = [];

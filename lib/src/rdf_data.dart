@@ -1,3 +1,5 @@
+import 'package:solid_encrypt/solid_encrypt.dart';
+
 class EncProfile {
   String profileRdfStr = '';
 
@@ -11,7 +13,7 @@ class EncProfile {
       for (var i = 0; i < rdfDataList.length; i++) {
         String dataItem = rdfDataList[i];
 
-        if (dataItem.contains('silo:encKey')) {
+        if (dataItem.contains('sh-data:encKey')) {
           var itemList = dataItem.trim().split(' ');
           encKeyHash = itemList[1].trim().split('"')[1];
         }
@@ -21,7 +23,7 @@ class EncProfile {
       for (var i = 0; i < rdfDataList.length; i++) {
         String dataItem = rdfDataList[i];
 
-        if (dataItem.contains('http://silo.net.au/predicates/terms#encKey')) {
+        if (dataItem.contains(encKeyPred)) {
           var itemList = dataItem.trim().split(' ');
           encKeyHash = itemList[1].trim().split('"')[1];
         }
@@ -38,7 +40,7 @@ class EncProfile {
       for (var i = 0; i < rdfDataList.length; i++) {
         String dataItem = rdfDataList[i];
 
-        if (dataItem.contains('silo:encFiles')) {
+        if (dataItem.contains('sh-data:encFiles')) {
           var itemList = dataItem.trim().split(' ');
           encFileHash = itemList[1].trim().split('"')[1];
         }
@@ -48,7 +50,7 @@ class EncProfile {
       for (var i = 0; i < rdfDataList.length; i++) {
         String dataItem = rdfDataList[i];
 
-        if (dataItem.contains('http://silo.net.au/predicates/terms#encFiles')) {
+        if (dataItem.contains(encFilePred)) {
           var itemList = dataItem.trim().split(' ');
           encFileHash = itemList[1].trim().split('"')[1];
         }
@@ -65,7 +67,7 @@ class EncProfile {
       for (var i = 0; i < rdfDataList.length; i++) {
         String dataItem = rdfDataList[i];
 
-        if (dataItem.contains('silo:encVal')) {
+        if (dataItem.contains('sh-data:encVal')) {
           var itemList = dataItem.trim().split(' ');
           encFileCont = itemList[1].trim().split('"')[1];
         }
@@ -75,7 +77,7 @@ class EncProfile {
       for (var i = 0; i < rdfDataList.length; i++) {
         String dataItem = rdfDataList[i];
 
-        if (dataItem.contains('http://silo.net.au/predicates/terms#encVal')) {
+        if (dataItem.contains(encValPred)) {
           var itemList = dataItem.trim().split(' ');
           encFileCont = itemList[2].trim().split('"')[1];
         }

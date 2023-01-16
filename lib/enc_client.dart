@@ -8,9 +8,9 @@ String encKeyFileName = 'enc-keys.ttl';
 String encKeyFileLoc = '$encKeyFileDir/$encKeyFileName';
 
 /// Predicates used in the library
-String encKeyPred = 'http://silo.net.au/predicates/terms#encKey';
-String encValPred = 'http://silo.net.au/predicates/terms#encVal';
-String encFilePred = 'http://silo.net.au/predicates/terms#encFiles';
+String encKeyPred = 'http://yarrabah.net/predicates/terms#encKey';
+String encValPred = 'http://yarrabah.net/predicates/terms#encVal';
+String encFilePred = 'http://yarrabah.net/predicates/terms#encFiles';
 
 /// Default body content of directory and file
 String dirBody = '<> <http://purl.org/dc/terms/title> "Basic container" .';
@@ -550,6 +550,7 @@ class EncryptClient {
   /// Encryption key verification with the hash value
   /// stored in the server
   Future<bool> verifyEncKey(String plaintextEncKey) async {
+    print ('i am hre');
     String sha224Result = sha224
         .convert(utf8.encode(plaintextEncKey))
         .toString()
@@ -558,10 +559,18 @@ class EncryptClient {
         .convert(utf8.encode(plaintextEncKey))
         .toString()
         .substring(0, 32);
+    
+    print(sha224Result);
+    print(sha256Result);
+
+    print(encKeyFileLoc);
 
     var keyInfo = await fetchFile(encKeyFileLoc);
+    print (keyInfo);
     EncProfile keyFile = EncProfile(keyInfo.toString());
+    print(keyFile);
     String encKeyHash = keyFile.getEncKeyHash();
+    print(encKeyHash);
 
     if (encKeyHash != sha224Result) {
       /// If the stored hash value is the same
