@@ -550,7 +550,6 @@ class EncryptClient {
   /// Encryption key verification with the hash value
   /// stored in the server
   Future<bool> verifyEncKey(String plaintextEncKey) async {
-    print ('i am hre');
     String sha224Result = sha224
         .convert(utf8.encode(plaintextEncKey))
         .toString()
@@ -559,11 +558,6 @@ class EncryptClient {
         .convert(utf8.encode(plaintextEncKey))
         .toString()
         .substring(0, 32);
-    
-    print(sha224Result);
-    print(sha256Result);
-
-    print(encKeyFileLoc);
 
     var keyInfo = await fetchFile(encKeyFileLoc);
     print (keyInfo);
