@@ -15,38 +15,47 @@ class EncScreen extends StatelessWidget {
   List encFileList;
   EncryptClient encryptClient;
   String action; // User WebId
-  EncScreen({Key key, @required this.authData, @required this.webId, 
-            @required this.currPath, @required this.encFileList, 
-            @required this.encryptClient, @required this.action}): super(key: key);
+  EncScreen(
+      {Key key,
+      @required this.authData,
+      @required this.webId,
+      @required this.currPath,
+      @required this.encFileList,
+      @required this.encryptClient,
+      @required this.action})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // Assign loading screen
-    var loadingScreen = EncProfile(authData: authData, webId: webId, 
-                        currPath: currPath, encFileList: encFileList, 
-                        action: action, encryptClient: encryptClient);
+    var loadingScreen = EncProfile(
+        authData: authData,
+        webId: webId,
+        currPath: currPath,
+        encFileList: encFileList,
+        action: action,
+        encryptClient: encryptClient);
 
     // Setup Scaffold to be responsive
     return Scaffold(
-      body: Responsive(
-        mobile: loadingScreen, 
-        tablet: Row(
-          children: [
-            Expanded(
-              flex: 10,
-              child: loadingScreen,
-            ),
-          ],
-        ),
-        desktop: Row(
-          children: [
-            Expanded(
-              flex: screenWidth(context) < 1300 ? 10 : 8,
-              child: loadingScreen,
-            ),
-          ],
-        ),
-      )
-    );
+        body: Responsive(
+      mobile: loadingScreen,
+      tablet: Row(
+        children: [
+          Expanded(
+            flex: 10,
+            child: loadingScreen,
+          ),
+        ],
+      ),
+      desktop: Row(
+        children: [
+          Expanded(
+            flex: screenWidth(context) < 1300 ? 10 : 8,
+            child: loadingScreen,
+          ),
+        ],
+      ),
+    ));
   }
 }

@@ -23,82 +23,75 @@ class EncProfile extends StatefulWidget {
   EncryptClient encryptClient;
   final String action; // User WebId
 
-  EncProfile({
-    Key key,
-    @required this.authData, 
-    @required this.webId,
-    @required this.action,
-    @required this.encFileList,
-    @required this.currPath,
-    @required this.encryptClient
-  }) : super(key: key);
+  EncProfile(
+      {Key key,
+      @required this.authData,
+      @required this.webId,
+      @required this.action,
+      @required this.encFileList,
+      @required this.currPath,
+      @required this.encryptClient})
+      : super(key: key);
 
   @override
   State<EncProfile> createState() => _EncProfileState();
 }
 
 class _EncProfileState extends State<EncProfile> {
-  final GlobalKey<ScaffoldState> _scaffoldKey  = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   // Loading widget
-  Widget _loadingScreen(){
+  Widget _loadingScreen() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          new Container(
-            alignment: AlignmentDirectional.center,
+      children: <Widget>[
+        new Container(
+          alignment: AlignmentDirectional.center,
+          decoration: new BoxDecoration(
+            color: backgroundWhite,
+          ),
+          child: new Container(
             decoration: new BoxDecoration(
-              color: backgroundWhite,
-            ),
-            child: new Container(
-              decoration: new BoxDecoration(
                 color: lightGold,
-                borderRadius: new BorderRadius.circular(25.0)
-              ),
-              width: 300.0,
-              height: 200.0,
-              alignment: AlignmentDirectional.center,
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  new Center(
-                    child: new SizedBox(
-                      height: 50.0,
-                      width: 50.0,
-                      child: new CircularProgressIndicator(
-                        value: null,
-                        color: backgroundWhite,
-                        strokeWidth: 7.0,
-                      ),
+                borderRadius: new BorderRadius.circular(25.0)),
+            width: 300.0,
+            height: 200.0,
+            alignment: AlignmentDirectional.center,
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                new Center(
+                  child: new SizedBox(
+                    height: 50.0,
+                    width: 50.0,
+                    child: new CircularProgressIndicator(
+                      value: null,
+                      color: backgroundWhite,
+                      strokeWidth: 7.0,
                     ),
                   ),
-                  new Container(
-                    margin: const EdgeInsets.only(top: 25.0),
-                    child: new Center(
-                      child: new Text(
-                        "Loading.. Please wait!",
-                        style: new TextStyle(
-                          fontSize: 20,
-                          color: Colors.white
-                        ),
-                      ),
+                ),
+                new Container(
+                  margin: const EdgeInsets.only(top: 25.0),
+                  child: new Center(
+                    child: new Text(
+                      "Loading.. Please wait!",
+                      style: new TextStyle(fontSize: 20, color: Colors.white),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
+      ],
     );
-      
   }
 
-
-  Widget _loadedScreen(List filesList, String webId, String logoutUrl, 
-                       Map authData, String currUrl, List encFileList) {
-
+  Widget _loadedScreen(List filesList, String webId, String logoutUrl,
+      Map authData, String currUrl, List encFileList) {
     // List<String> containerList = filesList[0];
     // List<String> resourceList = filesList[1];
 
@@ -111,14 +104,16 @@ class _EncProfileState extends State<EncProfile> {
           Divider(thickness: 1),
           Expanded(
             child: SingleChildScrollView(
-              controller: ScrollController(),
-              padding: EdgeInsets.all(kDefaultPadding*1.5),
-                child: FilesInfo(fileData:filesList, profType:'private', 
-                                  webId: webId, authData: authData,
-                                  currUrl: currUrl,
-                                  encFileList: encFileList,
-                                  encryptClient: widget.encryptClient)
-            ),
+                controller: ScrollController(),
+                padding: EdgeInsets.all(kDefaultPadding * 1.5),
+                child: FilesInfo(
+                    fileData: filesList,
+                    profType: 'private',
+                    webId: webId,
+                    authData: authData,
+                    currUrl: currUrl,
+                    encFileList: encFileList,
+                    encryptClient: widget.encryptClient)),
           )
         ],
       ),
@@ -143,23 +138,18 @@ class _EncProfileState extends State<EncProfile> {
       // ),
       body: SafeArea(
         child: FutureBuilder(
-          future: rest_api.getContainerList(authData, widget.currPath),
-          builder: (context, snapshot) {
-            Widget returnVal;
-            if(snapshot.connectionState == ConnectionState.done){
-              returnVal = _loadedScreen(snapshot.data, webId, logoutUrl,
-                           authData, widget.currPath, widget.encFileList);
-            }
-            else{
-              returnVal = _loadingScreen();
-            }
-            return returnVal;
-          }
-        ),
-        
-        
-        
-        
+            future: rest_api.getContainerList(authData, widget.currPath),
+            builder: (context, snapshot) {
+              Widget returnVal;
+              if (snapshot.connectionState == ConnectionState.done) {
+                returnVal = _loadedScreen(snapshot.data, webId, logoutUrl,
+                    authData, widget.currPath, widget.encFileList);
+              } else {
+                returnVal = _loadingScreen();
+              }
+              return returnVal;
+            }),
+
         // Container(
         //   color: Colors.white,
         //   child: Column(
@@ -181,4 +171,3 @@ class _EncProfileState extends State<EncProfile> {
     );
   }
 }
-

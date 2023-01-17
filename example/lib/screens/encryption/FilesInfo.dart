@@ -10,25 +10,24 @@ import 'package:solid_auth/solid_auth.dart';
 import 'package:solid_encrypt/solid_encrypt.dart';
 
 class FilesInfo extends StatelessWidget {
-  final List fileData;     // Profile data
-  final Map authData;     // Authentication related data
-  final String profType;  // Public or private
-  final String webId; 
-  final String currUrl;  // WebId of the user
+  final List fileData; // Profile data
+  final Map authData; // Authentication related data
+  final String profType; // Public or private
+  final String webId;
+  final String currUrl; // WebId of the user
   final List encFileList;
   EncryptClient encryptClient;
 
-  FilesInfo({
-    Key key,
-    @required this.fileData,
-    @required this.profType,
-    @required this.currUrl,
-    @required this.encFileList,
-    @required this.encryptClient,
-    this.authData,
-    this.webId
-  }) : super(key: key);
-  
+  FilesInfo(
+      {Key key,
+      @required this.fileData,
+      @required this.profType,
+      @required this.currUrl,
+      @required this.encFileList,
+      @required this.encryptClient,
+      this.authData,
+      this.webId})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +41,6 @@ class FilesInfo extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         // Expanded(
         //   child: Wrap(
         //   //direction: Axis.vertical,
@@ -58,7 +56,7 @@ class FilesInfo extends StatelessWidget {
         //       child: pathSelector('home', homeUrl, context)),
 
         //     Container(
-        //       child: pathSelector('/', homeUrl, context)),  
+        //       child: pathSelector('/', homeUrl, context)),
         //     Container(
         //       color: Colors.orange,
         //       width: 100,
@@ -81,13 +79,14 @@ class FilesInfo extends StatelessWidget {
                     letterSpacing: 2.0,
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold,
-                    ),
                   ),
-                for (var i = 0; i < pathList.length; i++) 
-                ...[
-                  if(pathList[i].isNotEmpty)
-                  ...[
-                    pathSelector(pathList[i], currUrl.split(pathList[i])[0] + pathList[i] + '/', context),
+                ),
+                for (var i = 0; i < pathList.length; i++) ...[
+                  if (pathList[i].isNotEmpty) ...[
+                    pathSelector(
+                        pathList[i],
+                        currUrl.split(pathList[i])[0] + pathList[i] + '/',
+                        context),
                     Text(
                       '/',
                       style: TextStyle(
@@ -95,39 +94,45 @@ class FilesInfo extends StatelessWidget {
                         letterSpacing: 2.0,
                         fontSize: 14.0,
                         fontWeight: FontWeight.bold,
-                        ),
                       ),
+                    ),
                   ]
-                  
                 ],
-             
-              // Expanded(
-              //   child: new Container(
-              //       margin: const EdgeInsets.only(left: 10.0, right: 0.0),
-              //       child: Divider(
-              //         color: lightGray,
-              //         height: 36,
-              //       )),
-              // ),
+
+                // Expanded(
+                //   child: new Container(
+                //       margin: const EdgeInsets.only(left: 10.0, right: 0.0),
+                //       child: Divider(
+                //         color: lightGray,
+                //         height: 36,
+                //       )),
+                // ),
               ]),
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
 
               //profileMenuItem("CONTENT"),
-              for (var i = 0; i < containerList.length; i++) 
-              ...[
-                buildContainerRow(containerList[i], currUrl, context, encFileList),
-                SizedBox(height: 10,),
+              for (var i = 0; i < containerList.length; i++) ...[
+                buildContainerRow(
+                    containerList[i], currUrl, context, encFileList),
+                SizedBox(
+                  height: 10,
+                ),
               ],
 
               profileMenuItem(""),
-              for (var i = 0; i < resourceList.length; i++) 
-              ...[
-                buildResourceRow(context, resourceList[i], resourceList[i], 
-                currUrl, pathStr, encFileList, encryptClient),
-                SizedBox(height: 10,),
-              ],        
+              for (var i = 0; i < resourceList.length; i++) ...[
+                buildResourceRow(context, resourceList[i], resourceList[i],
+                    currUrl, pathStr, encFileList, encryptClient),
+                SizedBox(
+                  height: 10,
+                ),
+              ],
 
-              SizedBox(height: 20,),
+              SizedBox(
+                height: 20,
+              ),
               Row(
                 children: <Widget>[
                   Expanded(
@@ -136,12 +141,12 @@ class FilesInfo extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => PrivateScreen(
-                                                                authData: authData,
-                                                                webId: webId,
-                                                                encryptClient: encryptClient,
-                                                                )
-                          ),
+                          MaterialPageRoute(
+                              builder: (context) => PrivateScreen(
+                                    authData: authData,
+                                    webId: webId,
+                                    encryptClient: encryptClient,
+                                  )),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -156,12 +161,12 @@ class FilesInfo extends StatelessWidget {
             ],
           ),
         ),
-      ], 
+      ],
     );
   }
 
-  TextButton pathSelector(String labeltxt, String newPath, BuildContext context) {
-
+  TextButton pathSelector(
+      String labeltxt, String newPath, BuildContext context) {
     return TextButton(
       child: Text(
         labeltxt,
@@ -171,30 +176,30 @@ class FilesInfo extends StatelessWidget {
           letterSpacing: 2.0,
           fontSize: 12.0,
           fontWeight: FontWeight.bold,
-          ),
         ),
+      ),
       style: ElevatedButton.styleFrom(
         minimumSize: Size(20, 25),
       ),
-      onPressed:() {
+      onPressed: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => EncScreen(
-                                                authData: authData,
-                                                webId: webId,
-                                                currPath: newPath,
-                                                encFileList: encFileList,
-                                                encryptClient: encryptClient,
-                                                action: 'encrypt',
-                                                )
-          ),
+          MaterialPageRoute(
+              builder: (context) => EncScreen(
+                    authData: authData,
+                    webId: webId,
+                    currPath: newPath,
+                    encFileList: encFileList,
+                    encryptClient: encryptClient,
+                    action: 'encrypt',
+                  )),
         );
       },
     );
   }
 
   // A menu item
-  Row profileMenuItem(String title){
+  Row profileMenuItem(String title) {
     return Row(children: <Widget>[
       Text(
         title,
@@ -203,8 +208,8 @@ class FilesInfo extends StatelessWidget {
           letterSpacing: 2.0,
           fontSize: 12.0,
           fontWeight: FontWeight.bold,
-          ),
         ),
+      ),
       Expanded(
         child: new Container(
             margin: const EdgeInsets.only(left: 10.0, right: 0.0),
@@ -217,8 +222,8 @@ class FilesInfo extends StatelessWidget {
   }
 
   // A container info row
-  Column buildContainerRow(String containerName, String currPath, 
-                      BuildContext context, List encFileList) {
+  Column buildContainerRow(String containerName, String currPath,
+      BuildContext context, List encFileList) {
     return Column(
       children: [
         Row(
@@ -228,7 +233,7 @@ class FilesInfo extends StatelessWidget {
               text: TextSpan(
                 children: [
                   WidgetSpan(
-                    child: Icon(Icons.folder_open , size: 20),
+                    child: Icon(Icons.folder_open, size: 20),
                   ),
                   TextSpan(
                     text: " $containerName",
@@ -237,12 +242,11 @@ class FilesInfo extends StatelessWidget {
                       letterSpacing: 2.0,
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold,
-                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-            
             ElevatedButton(
               child: Text('OPEN'),
               onPressed: () {
@@ -250,15 +254,15 @@ class FilesInfo extends StatelessWidget {
 
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => EncScreen(
-                                                        authData: authData,
-                                                        webId: webId,
-                                                        currPath: newPath,
-                                                        encFileList: encFileList,
-                                                        encryptClient: encryptClient,
-                                                        action: 'encrypt',
-                                                        )
-                  ),
+                  MaterialPageRoute(
+                      builder: (context) => EncScreen(
+                            authData: authData,
+                            webId: webId,
+                            currPath: newPath,
+                            encFileList: encFileList,
+                            encryptClient: encryptClient,
+                            action: 'encrypt',
+                          )),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -273,9 +277,14 @@ class FilesInfo extends StatelessWidget {
     );
   }
 
-  Column buildResourceRow(BuildContext context, String resourceName, 
-                          String profName, String currUrl, String pathStr, 
-                          List encFileList, EncryptClient encryptClient) {
+  Column buildResourceRow(
+      BuildContext context,
+      String resourceName,
+      String profName,
+      String currUrl,
+      String pathStr,
+      List encFileList,
+      EncryptClient encryptClient) {
     String filePath = pathStr + resourceName;
     bool encryptedFlag = false;
 
@@ -283,7 +292,7 @@ class FilesInfo extends StatelessWidget {
       pathStr = pathStr.substring(0, pathStr.length - 1);
     }
 
-    if(encFileList.contains(filePath)){
+    if (encFileList.contains(filePath)) {
       encryptedFlag = true;
     }
 
@@ -296,7 +305,7 @@ class FilesInfo extends StatelessWidget {
               text: TextSpan(
                 children: [
                   WidgetSpan(
-                    child: Icon(Icons.insert_drive_file_outlined , size: 20),
+                    child: Icon(Icons.insert_drive_file_outlined, size: 20),
                   ),
                   TextSpan(
                     text: " $resourceName",
@@ -305,109 +314,107 @@ class FilesInfo extends StatelessWidget {
                       letterSpacing: 2.0,
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold,
-                      ),
+                    ),
                   ),
                 ],
               ),
             ),
+            if (resourceName.contains('.ttl')) ...[
+              Container(
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                      child: Text('READ'),
+                      onPressed: () async {
+                        var rsaInfo = authData['rsaInfo'];
+                        var rsaKeyPair = rsaInfo['rsa'];
+                        var publicKeyJwk = rsaInfo['pubKeyJwk'];
+                        String accessToken = authData['accessToken'];
 
-            if (resourceName.contains('.ttl')) 
-              ...[
-                Container(
-                  child: Row(
-                    children: [
-                      ElevatedButton(
-                        child: Text('READ'),
-                        onPressed: () async {
-                          var rsaInfo = authData['rsaInfo'];
-                          var rsaKeyPair = rsaInfo['rsa'];
-                          var publicKeyJwk = rsaInfo['pubKeyJwk'];
-                          String accessToken = authData['accessToken'];
+                        // Get file content
+                        String fileUrl = currUrl + resourceName;
+                        String dPopToken = genDpopToken(
+                            fileUrl, rsaKeyPair, publicKeyJwk, 'GET');
+                        String fileInfo = await fetchPrvProfile(
+                            fileUrl, accessToken, dPopToken);
 
-                          // Get file content 
-                          String fileUrl = currUrl + resourceName;
-                          String dPopToken = genDpopToken(fileUrl, rsaKeyPair, publicKeyJwk, 'GET');
-                          String fileInfo = await fetchPrvProfile(fileUrl, accessToken, dPopToken);
-                          
-                          displayFileContent(context, fileInfo);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(20, 25),
-                          primary: lightBlue, // background
-                          onPrimary: Colors.white, // foreground
-                        ),
+                        displayFileContent(context, fileInfo);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(20, 25),
+                        primary: lightBlue, // background
+                        onPrimary: Colors.white, // foreground
                       ),
-                      SizedBox(width: 10,),
-
-                      if(resourceName != 'enc-keys.ttl')
-                      ...[
-                        if(encryptedFlag)
-                        ...[
-                          ElevatedButton(
-                            child: Text('DECRYPT'),
-                            onPressed: () async {
-                              await encryptClient.decryptFile(pathStr, resourceName);
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => PrivateScreen(
-                                                                      authData: authData,
-                                                                      webId: webId,
-                                                                      encryptClient: encryptClient,
-                                                                      )
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(20, 25),
-                              primary: lightGreen, // background
-                              onPrimary: Colors.white, // foreground
-                            ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    if (resourceName != 'enc-keys.ttl') ...[
+                      if (encryptedFlag) ...[
+                        ElevatedButton(
+                          child: Text('DECRYPT'),
+                          onPressed: () async {
+                            await encryptClient.decryptFile(
+                                pathStr, resourceName);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PrivateScreen(
+                                        authData: authData,
+                                        webId: webId,
+                                        encryptClient: encryptClient,
+                                      )),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(20, 25),
+                            primary: lightGreen, // background
+                            onPrimary: Colors.white, // foreground
                           ),
-                        ]
-                        else
-                        ...[
-                          ElevatedButton(
-                            child: Text('ENCRYPT'),
-                            onPressed: () async {
-                              //EncryptClient encryptClient1 = EncryptClient(authData, webId);
-                              await encryptClient.encryptFile(pathStr, resourceName);
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => PrivateScreen(
-                                                                      authData: authData,
-                                                                      webId: webId,
-                                                                      encryptClient: encryptClient,
-                                                                      )
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(20, 25),
-                              primary: darkCopper, // background
-                              onPrimary: Colors.white, // foreground
-                            ),
+                        ),
+                      ] else ...[
+                        ElevatedButton(
+                          child: Text('ENCRYPT'),
+                          onPressed: () async {
+                            //EncryptClient encryptClient1 = EncryptClient(authData, webId);
+                            await encryptClient.encryptFile(
+                                pathStr, resourceName);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PrivateScreen(
+                                        authData: authData,
+                                        webId: webId,
+                                        encryptClient: encryptClient,
+                                      )),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(20, 25),
+                            primary: darkCopper, // background
+                            onPrimary: Colors.white, // foreground
                           ),
-                        ]
+                        ),
                       ]
-                    ],
-                  ),
+                    ]
+                  ],
                 ),
-              ] 
+              ),
+            ]
           ],
         ),
       ],
     );
   }
 
-  Future<void> displayFileContent(
-    BuildContext context, String fileInfo) async {
+  Future<void> displayFileContent(BuildContext context, String fileInfo) async {
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text('File content'),
           content: Container(
-            height:400,
+            height: 400,
             child: SingleChildScrollView(
               child: Expanded(
                 child: Column(
@@ -453,7 +460,7 @@ class FilesInfo extends StatelessWidget {
 
             //     /// Update key
             //     //await encryptClient.updateEncKey('test-key', 'test-key1');
-                
+
             //     /// Revoke encryption
             //     //await encryptClient.revokeEnc('test-key');
 
