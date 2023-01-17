@@ -19,3 +19,7 @@ Initial version of the package
 ## 0.1.4
 
 * Changes to the predicates used in the package
+
+## 0.1.5
+
+* Cleaning the code
