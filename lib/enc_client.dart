@@ -560,11 +560,8 @@ class EncryptClient {
         .substring(0, 32);
 
     var keyInfo = await fetchFile(encKeyFileLoc);
-    print (keyInfo);
     EncProfile keyFile = EncProfile(keyInfo.toString());
-    print(keyFile);
     String encKeyHash = keyFile.getEncKeyHash();
-    print(encKeyHash);
 
     if (encKeyHash != sha224Result) {
       /// If the stored hash value is the same
