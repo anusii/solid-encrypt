@@ -27,3 +27,7 @@ Initial version of the package
 ## 0.1.6
 
 * Updating the package to use variable IV values for encryption/decryption
+
+## 0.1.7
+
+* changes to the variable IV values update functions for encryption/decryption
