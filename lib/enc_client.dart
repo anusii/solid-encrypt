@@ -213,8 +213,8 @@ class EncryptClient {
     List fileListEncRes = encryptVal(encKey, newFileListStr);
     String fileListStrEnc = fileListEncRes[0];
     String fileListIv = fileListEncRes[1];
-    // AV: need to add iv update
 
+    // Update encrypted value
     String dPopToken =
         genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
     String updateQuery = genSparqlQuery(
@@ -224,9 +224,19 @@ class EncryptClient {
     String updateResponse =
         await runQuery(encKeyFileUrl, dPopToken, updateQuery);
 
+    // Update IV value
+    String dPopTokenIv =
+        genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+    String updateQueryIv = genSparqlQuery('UPDATE', '', ivValPred, fileListIv,
+        prevObject: encFileIvVal);
+
+    String updateResponseIv =
+        await runQuery(encKeyFileUrl, dPopTokenIv, updateQueryIv);
+
     if (delResponse != 'ok' ||
         fileCreateRes != 'ok' ||
-        updateResponse != 'ok') {
+        updateResponse != 'ok' ||
+        updateResponseIv != 'ok') {
       throw Exception('Failed to revoke encrypted file $encFilePath.');
     }
   }
@@ -275,20 +285,28 @@ class EncryptClient {
         List newEncFileRes = encryptVal(newEncKey, plainFileCont);
         String newEncFileCont = newEncFileRes[0];
         String newEncIv = newEncFileRes[1];
-        // AV: need to add iv update
 
         String encFileUrl = webId.replaceAll('profile/card#me', encFilePath);
+
+        // Update encrypted value
         String dPopToken =
             genDpopToken(encFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
-
         String fileUpdateQuery = genSparqlQuery(
             'UPDATE', '', encValPred, newEncFileCont,
             prevObject: encFileCont);
-
         String fileContupdate =
             await runQuery(encFileUrl, dPopToken, fileUpdateQuery);
 
-        if (fileContupdate == 'ok') {
+        // Update IV value
+        String dPopTokenIv =
+            genDpopToken(encFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+        String fileUpdateQueryIv = genSparqlQuery(
+            'UPDATE', '', ivValPred, newEncIv,
+            prevObject: encFileIv);
+        String fileContupdateIv =
+            await runQuery(encFileUrl, dPopTokenIv, fileUpdateQueryIv);
+
+        if (fileContupdate == 'ok' && fileContupdateIv == 'ok') {
           continue;
         } else {
           throw Exception('Failed to update encrypted file $encFilePath.');
@@ -310,18 +328,26 @@ class EncryptClient {
         List encFileNewRes = encryptVal(newEncKey, encFilePlaintext);
         String encFileHashNew = encFileNewRes[0];
         String encFileIvNew = encFileNewRes[1];
-        // AV: need to update IV
 
+        // Update encrypted value
         String dPopToken =
             genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
-
         String updateQuery = genSparqlQuery(
             'UPDATE', '', encFilePred, encFileHashNew,
             prevObject: encFileHash);
         String updateResponse =
             await runQuery(encKeyUrl, dPopToken, updateQuery);
 
-        if (updateResponse == 'ok') {
+        // Update IV value
+        String dPopTokenIv =
+            genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+        String updateQueryIv = genSparqlQuery(
+            'UPDATE', '', ivValPred, encFileIvNew,
+            prevObject: encFileIv);
+        String updateResponseIv =
+            await runQuery(encKeyUrl, dPopTokenIv, updateQueryIv);
+
+        if (updateResponse == 'ok' && updateResponseIv == 'ok') {
           removeEncKeyStorage();
 
           /// Remove previous key from local storage
