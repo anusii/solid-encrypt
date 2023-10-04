@@ -1,6 +1,6 @@
-# A demo app for using Solid Auth package
+# A demo app for using Solid Encrypt package
 
-Flutter Demo app for authenticate with Solid PODs. The app can run on both mobile (tested on Anroid) and web platforms (tested on Chrome and Firefox).
+Flutter Demo app for encrypting values with Solid PODs. The app can run on both mobile (tested on Anroid), web (tested on Chrome and Firefox), and desktop (tested on Windows) environments.
 
 <!-- **Flutter packages used in the app:**
 
@@ -21,7 +21,7 @@ Flutter Demo app for authenticate with Solid PODs. The app can run on both mobil
 
 ## Usage
 
-Fork the demo app in the `\example` directory into a local directory and open the `pubspec.yaml` file. Check whether the latest version of the package `solid_auth` is added under dependencies. Now run the following to get the necessary packages.
+Fork the demo app in the `\example` directory into a local directory and open the `pubspec.yaml` file. Check whether the latest version of the package `solid_encrypt` is added under dependencies. Now run the following to get the necessary packages.
 
 ```dart
 flutter pub get
@@ -32,7 +32,7 @@ flutter pub get
 
 After all the required packages are imported, then first select the device you want the app to run. Then run the app by pressing `CTRL + F5`.
 
-To access public data of a POD input the WebID into the text area and click `READ PUBLIC INFO` button.
+<!-- To access public data of a POD input the WebID into the text area and click `READ PUBLIC INFO` button.
 
 <center> <img src="assets/images/public_data.gif" alt="public data" height="600"> </center>
 <br/>
@@ -47,4 +47,4 @@ To login input the SOLID POD provider URL into the text area and click `LOGIN` b
 
 To logout simply click the `LOGOUT` button.
 
-<center> <img src="assets/images/logout.gif" alt="public data" height="600"> </center>
+<center> <img src="assets/images/logout.gif" alt="public data" height="600"> </center> -->
