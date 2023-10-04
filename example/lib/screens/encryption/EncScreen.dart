@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 // Project imports:
 import 'package:fluttersolidencrypt/models/Responsive.dart';
-import 'package:fluttersolidencrypt/screens/PrivateProfile.dart';
 import 'package:fluttersolidencrypt/models/Constants.dart';
 import 'package:fluttersolidencrypt/screens/encryption/EncProfile.dart';
 import 'package:fluttersolidencrypt/screens/encryption/encSingleVal.dart';

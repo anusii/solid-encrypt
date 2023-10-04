@@ -143,15 +143,15 @@ class FilesInfo extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => PrivateScreen(
-                                    authData: authData!,
-                                    webId: webId!,
+                                    authData: authData,
+                                    webId: webId,
                                     encryptClient: encryptClient,
                                   )),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: lightGold, // background
-                        onPrimary: Colors.white, // foreground
+                        backgroundColor: lightGold, // background
+                        foregroundColor: Colors.white, // foreground
                       ),
                     ),
                   ),
@@ -288,7 +288,7 @@ class FilesInfo extends StatelessWidget {
     String filePath = pathStr + resourceName;
     bool encryptedFlag = false;
 
-    if (pathStr != null && pathStr.length > 0) {
+    if (pathStr.length > 0) {
       pathStr = pathStr.substring(0, pathStr.length - 1);
     }
 

@@ -1,19 +1,12 @@
 // Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:fluttersolidencrypt/screens/PrivateScreen.dart';
-import 'package:fluttersolidencrypt/screens/encryption/FilesInfo.dart';
-
-// Package imports:
-import 'package:jwt_decoder/jwt_decoder.dart';
-//import 'package:websafe_svg/websafe_svg.dart';
 
 // Project imports:
 import 'package:fluttersolidencrypt/models/Constants.dart';
-import 'package:fluttersolidencrypt/screens/ProfileInfo.dart';
 import 'package:fluttersolidencrypt/components/Header.dart';
 import 'package:fluttersolidencrypt/models/SolidApi.dart' as rest_api;
-import 'package:solid_auth/solid_auth.dart';
-import 'package:fluttersolidencrypt/models/GetRdfData.dart';
+
 import 'package:solid_encrypt/solid_encrypt.dart';
 
 class EncSingleVal extends StatefulWidget {

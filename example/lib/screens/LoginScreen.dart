@@ -10,15 +10,13 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fluttersolidencrypt/models/Constants.dart';
 import 'package:fluttersolidencrypt/screens/PrivateScreen.dart';
 import 'package:fluttersolidencrypt/screens/PublicScreen.dart';
-//import 'package:fluttersolidencrypt/models/RestAPI.dart';
-//import 'package:solid_auth/solid_auth.dart';
 import 'package:solid_auth/solid_auth.dart';
 
 class LoginScreen extends StatelessWidget {
   // Sample web ID to check the functionality
   //var webIdController = TextEditingController()..text = 'https://charlieb.solidcommunity.net/profile/card#me';
   var webIdController = TextEditingController()
-    ..text = 'https://solid.udula.net.au/charlie_bruegel/profile/card#me';
+    ..text = 'https://demouser.solidcommunity.net/profile/card#me';
 
   @override
   Widget build(BuildContext context) {
