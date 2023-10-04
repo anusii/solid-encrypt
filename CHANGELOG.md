@@ -23,3 +23,7 @@ Initial version of the package
 ## 0.1.5
 
 * Cleaning the code
+
+## 0.1.6
+
+* Updating the package to use variable IV values for encryption/decryption
