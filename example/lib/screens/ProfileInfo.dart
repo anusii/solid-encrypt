@@ -1,24 +1,24 @@
 // Flutter imports:
 import 'package:flutter/material.dart';
-import 'package:fluttersolidauth/screens/PrivateScreen.dart';
+import 'package:fluttersolidencrypt/screens/PrivateScreen.dart';
 import 'package:solid_encrypt/solid_encrypt.dart';
 
 // Project imports:
-import 'package:fluttersolidauth/models/Constants.dart';
-import 'package:fluttersolidauth/screens/encryption/EncScreen.dart';
+import 'package:fluttersolidencrypt/models/Constants.dart';
+import 'package:fluttersolidencrypt/screens/encryption/EncScreen.dart';
 
 class ProfileInfo extends StatelessWidget {
   final Map profData; // Profile data
-  final Map authData; // Authentication related data
+  final Map? authData; // Authentication related data
   final String profType; // Public or private
-  final String webId; // WebId of the user
-  EncryptClient encryptClient;
+  final String? webId; // WebId of the user
+  EncryptClient? encryptClient;
 
   ProfileInfo(
-      {Key key,
-      @required this.profData,
-      @required this.profType,
-      @required this.encryptClient,
+      {Key? key,
+      required this.profData,
+      required this.profType,
+      this.encryptClient,
       this.authData,
       this.webId})
       : super(key: key);
@@ -26,7 +26,6 @@ class ProfileInfo extends StatelessWidget {
   TextEditingController _passPhraseController = TextEditingController();
   TextEditingController _repeatPassPhraseController = TextEditingController();
   TextEditingController _encKeyPlaintextController = TextEditingController();
-  BuildContext dialogContext;
 
   Future<void> _displayPassPhraseInputDialog(
       BuildContext context, EncryptClient encryptClient) async {
@@ -121,12 +120,11 @@ class ProfileInfo extends StatelessWidget {
     );
   }
 
-  Future<bool> _encKeyVerification(BuildContext context,
+  Future<dynamic> _encKeyVerification(BuildContext context,
       EncryptClient encryptClient, bool keyResetFlag) async {
     return showDialog(
       context: context,
       builder: (context) {
-        //dialogContext = context;
         return AlertDialog(
           title: Text('Encryption key verification!'),
           content: Container(
@@ -163,21 +161,21 @@ class ProfileInfo extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                           builder: (context) => PrivateScreen(
-                                authData: authData,
-                                webId: webId,
+                                authData: authData!,
+                                webId: webId!,
                                 encryptClient: encryptClient,
                               )),
                     );
                   } else {
                     List encFileList = [];
                     encFileList = await encryptClient.getEncFileList();
-                    String currPath = webId.replaceAll('profile/card#me', '');
+                    String currPath = webId!.replaceAll('profile/card#me', '');
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                           builder: (context) => EncScreen(
-                                authData: authData,
-                                webId: webId,
+                                authData: authData!,
+                                webId: webId!,
                                 currPath: currPath,
                                 encFileList: encFileList,
                                 encryptClient: encryptClient,
@@ -256,18 +254,19 @@ class ProfileInfo extends StatelessWidget {
                     child: ElevatedButton(
                       child: Text('Set Encryption Key'),
                       onPressed: () async {
-                        bool checkEncKey = await encryptClient.checkEncSetup();
+                        bool checkEncKey = await encryptClient!.checkEncSetup();
 
                         if (!checkEncKey) {
-                          _displayPassPhraseInputDialog(context, encryptClient);
+                          _displayPassPhraseInputDialog(
+                              context, encryptClient!);
                         } else {
                           _showErrDialog(context, 'Encryption key already set!',
                               'WARNING!');
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: lightGold, // background
-                        onPrimary: Colors.white, // foreground
+                        backgroundColor: lightGold, // background
+                        foregroundColor: Colors.white, // foreground
                       ),
                     ),
                   ),
@@ -276,18 +275,18 @@ class ProfileInfo extends StatelessWidget {
                     child: ElevatedButton(
                       child: Text('Reset Encryption'),
                       onPressed: () async {
-                        bool checkEncKey = await encryptClient.checkEncSetup();
+                        bool checkEncKey = await encryptClient!.checkEncSetup();
 
                         if (checkEncKey) {
-                          _encKeyVerification(context, encryptClient, false);
+                          _encKeyVerification(context, encryptClient!, false);
                         } else {
                           _showErrDialog(
                               context, 'No encryption key is set!', 'WARNING!');
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: lightGold, // background
-                        onPrimary: Colors.white, // foreground
+                        backgroundColor: lightGold, // background
+                        foregroundColor: Colors.white, // foreground
                       ),
                     ),
                   ),
@@ -302,28 +301,28 @@ class ProfileInfo extends StatelessWidget {
                     child: ElevatedButton(
                       child: Text('Encrypt/Decrypt Files'),
                       onPressed: () async {
-                        bool checkEncKey = await encryptClient.checkEncSetup();
+                        bool checkEncKey = await encryptClient!.checkEncSetup();
 
                         if (checkEncKey) {
-                          if (encryptClient.checkEncKeyStorage()) {
+                          if (encryptClient!.checkEncKeyStorage()) {
                             List encFileList = [];
-                            encFileList = await encryptClient.getEncFileList();
+                            encFileList = await encryptClient!.getEncFileList();
                             String currPath =
-                                webId.replaceAll('profile/card#me', '');
+                                webId!.replaceAll('profile/card#me', '');
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => EncScreen(
-                                        authData: authData,
-                                        webId: webId,
+                                        authData: authData!,
+                                        webId: webId!,
                                         currPath: currPath,
                                         encFileList: encFileList,
-                                        encryptClient: encryptClient,
+                                        encryptClient: encryptClient!,
                                         action: 'encrypt',
                                       )),
                             );
                           } else {
-                            _encKeyVerification(context, encryptClient, false);
+                            _encKeyVerification(context, encryptClient!, false);
                           }
                         } else {
                           _showErrDialog(context,
@@ -331,8 +330,47 @@ class ProfileInfo extends StatelessWidget {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: lightGold, // background
-                        onPrimary: Colors.white, // foreground
+                        backgroundColor: lightGold, // background
+                        foregroundColor: Colors.white, // foreground
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 5),
+                  Expanded(
+                    child: ElevatedButton(
+                      child: Text('Encrypt/Decrypt Values'),
+                      onPressed: () async {
+                        bool checkEncKey = await encryptClient!.checkEncSetup();
+
+                        if (checkEncKey) {
+                          if (encryptClient!.checkEncKeyStorage()) {
+                            List encFileList = [];
+                            encFileList = await encryptClient!.getEncFileList();
+                            String currPath =
+                                webId!.replaceAll('profile/card#me', '');
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => EncScreen(
+                                        authData: authData!,
+                                        webId: webId!,
+                                        currPath: currPath,
+                                        encFileList: encFileList,
+                                        encryptClient: encryptClient!,
+                                        action: 'encryptVal',
+                                      )),
+                            );
+                          } else {
+                            _encKeyVerification(context, encryptClient!, false);
+                          }
+                        } else {
+                          _showErrDialog(context,
+                              'Setup an encryption key first.', 'ERROR!');
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: lightGold, // background
+                        foregroundColor: Colors.white, // foreground
                       ),
                     ),
                   ),
@@ -348,7 +386,8 @@ class ProfileInfo extends StatelessWidget {
                   //   ),
                   // ),
                 ],
-              )
+              ),
+
               //
             ],
           ),

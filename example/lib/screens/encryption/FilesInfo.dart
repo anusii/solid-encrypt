@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 
 // Project imports:
-import 'package:fluttersolidauth/models/Constants.dart';
-import 'package:fluttersolidauth/models/SolidApi.dart';
-import 'package:fluttersolidauth/screens/PrivateScreen.dart';
-import 'package:fluttersolidauth/screens/encryption/EncScreen.dart';
+import 'package:fluttersolidencrypt/models/Constants.dart';
+import 'package:fluttersolidencrypt/models/SolidApi.dart';
+import 'package:fluttersolidencrypt/screens/PrivateScreen.dart';
+import 'package:fluttersolidencrypt/screens/encryption/EncScreen.dart';
 import 'package:solid_auth/solid_auth.dart';
 import 'package:solid_encrypt/solid_encrypt.dart';
 
@@ -19,14 +19,14 @@ class FilesInfo extends StatelessWidget {
   EncryptClient encryptClient;
 
   FilesInfo(
-      {Key key,
-      @required this.fileData,
-      @required this.profType,
-      @required this.currUrl,
-      @required this.encFileList,
-      @required this.encryptClient,
-      this.authData,
-      this.webId})
+      {Key? key,
+      required this.fileData,
+      required this.profType,
+      required this.currUrl,
+      required this.encFileList,
+      required this.encryptClient,
+      required this.authData,
+      required this.webId})
       : super(key: key);
 
   @override
@@ -143,8 +143,8 @@ class FilesInfo extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => PrivateScreen(
-                                    authData: authData,
-                                    webId: webId,
+                                    authData: authData!,
+                                    webId: webId!,
                                     encryptClient: encryptClient,
                                   )),
                         );
@@ -267,8 +267,8 @@ class FilesInfo extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(20, 25),
-                primary: brickRed, // background
-                onPrimary: Colors.white, // foreground
+                backgroundColor: brickRed, // background
+                foregroundColor: Colors.white, // foreground
               ),
             ),
           ],

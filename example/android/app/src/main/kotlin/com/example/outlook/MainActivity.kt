@@ -1,4 +1,4 @@
-package com.example.fluttersolidauth
+package com.example.fluttersolidencrypt
 
 import io.flutter.embedding.android.FlutterActivity
 

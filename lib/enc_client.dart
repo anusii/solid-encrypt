@@ -10,6 +10,7 @@ String encKeyFileLoc = '$encKeyFileDir/$encKeyFileName';
 /// Predicates used in the library
 String encKeyPred = 'http://yarrabah.net/predicates/terms#encKey';
 String encValPred = 'http://yarrabah.net/predicates/terms#encVal';
+String ivValPred = 'http://yarrabah.net/predicates/terms#ivVal';
 String encFilePred = 'http://yarrabah.net/predicates/terms#encFiles';
 
 /// Default body content of directory and file
@@ -86,7 +87,9 @@ class EncryptClient {
     String encKey = appStorage.getItem('encKey');
 
     /// Encrypt the plaintext file content
-    String encryptValStr = encryptVal(encKey, fileContent);
+    List encryptValRes = encryptVal(encKey, fileContent);
+    String encryptValStr = encryptValRes[0];
+    String ivValStr = encryptValRes[1];
 
     /// Delete the existing file with plaintext and create a new file with ciphertext
     String delResponse = await deleteItem(false, filePath + '/' + fileName);
@@ -99,11 +102,18 @@ class EncryptClient {
       String insertResponse =
           await runQuery(encFileUrl, dPopToken, insertQuery);
 
-      if (insertResponse == 'ok') {
+      String dPopTokenIv =
+          genDpopToken(encFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+      String insertQueryIv = genSparqlQuery('INSERT', '', ivValPred, ivValStr);
+      String insertResponseIv =
+          await runQuery(encFileUrl, dPopTokenIv, insertQueryIv);
+
+      if (insertResponse == 'ok' && insertResponseIv == 'ok') {
         /// Get the list of locations of files that are encrypted
         var keyInfo = await fetchFile(encKeyFileLoc);
         EncProfile keyFile = EncProfile(keyInfo.toString());
         String encFileHash = keyFile.getEncFileHash();
+        String encIvVal = keyFile.getEncIvVal();
 
         String fileListStr = '';
 
@@ -112,7 +122,7 @@ class EncryptClient {
           List fileList = ['$filePath/$fileName'];
           fileListStr = jsonEncode(fileList);
         } else {
-          String encFilePlaintext = decryptVal(encKey, encFileHash);
+          String encFilePlaintext = decryptVal(encKey, encFileHash, encIvVal);
           List fileList = jsonDecode(encFilePlaintext);
           fileList.add('$filePath/$fileName');
           fileListStr = jsonEncode(fileList);
@@ -122,7 +132,11 @@ class EncryptClient {
         if (fileListStr.isNotEmpty) {
           String encKeyFileUrl =
               webId.replaceAll('profile/card#me', encKeyFileLoc);
-          String fileListStrEnc = encryptVal(encKey, fileListStr);
+          List fileListEncRes = encryptVal(encKey, fileListStr);
+          String fileListStrEnc = fileListEncRes[0];
+          String fileListIv = fileListEncRes[1];
+
+          // Update encrypted value
           String dPopToken =
               genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
 
@@ -133,7 +147,18 @@ class EncryptClient {
           String updateResponse =
               await runQuery(encKeyFileUrl, dPopToken, updateQuery);
 
-          if (updateResponse != 'ok') {
+          // Update iv value
+          String dPopTokenIv =
+              genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
+
+          String updateQueryIv = genSparqlQuery(
+              'UPDATE', '', ivValPred, fileListIv,
+              prevObject: encIvVal);
+
+          String updateResponseIv =
+              await runQuery(encKeyFileUrl, dPopTokenIv, updateQueryIv);
+
+          if (updateResponse != 'ok' || updateResponseIv != 'ok') {
             throw Exception('Failed to update encrypted file locations.');
           }
         }
@@ -157,18 +182,20 @@ class EncryptClient {
     String fileContent = await fetchFile(encFilePath);
     EncProfile encFile = EncProfile(fileContent.toString());
     String encFileCont = encFile.getEncFileCont();
+    String encIvVal = encFile.getEncIvVal();
 
     /// Get encryption key that is stored in the local storage
     String encKey = appStorage.getItem('encKey');
 
     /// Decrypt the ciphertext
-    String plainFileCont = decryptVal(encKey, encFileCont);
+    String plainFileCont = decryptVal(encKey, encFileCont, encIvVal);
 
     /// Get the list of locations of files that are encrypted
     var keyInfo = await fetchFile(encKeyFileLoc);
     EncProfile keyFile = EncProfile(keyInfo.toString());
     String encFileHash = keyFile.getEncFileHash();
-    String encFilePlaintext = decryptVal(encKey, encFileHash);
+    String encFileIvVal = keyFile.getEncIvVal();
+    String encFilePlaintext = decryptVal(encKey, encFileHash, encFileIvVal);
     List encFileList = jsonDecode(encFilePlaintext);
 
     /// Delete the encrypted file
@@ -183,7 +210,11 @@ class EncryptClient {
     String newFileListStr = jsonEncode(encFileList);
 
     String encKeyFileUrl = webId.replaceAll('profile/card#me', encKeyFileLoc);
-    String fileListStrEnc = encryptVal(encKey, newFileListStr);
+    List fileListEncRes = encryptVal(encKey, newFileListStr);
+    String fileListStrEnc = fileListEncRes[0];
+    String fileListIv = fileListEncRes[1];
+    // AV: need to add iv update
+
     String dPopToken =
         genDpopToken(encKeyFileUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
     String updateQuery = genSparqlQuery(
@@ -226,8 +257,9 @@ class EncryptClient {
 
       String prevKeyHash = keyFile.getEncKeyHash();
       String encFileHash = keyFile.getEncFileHash();
+      String encFileIv = keyFile.getEncIvVal();
 
-      String encFilePlaintext = decryptVal(prevEncKey, encFileHash);
+      String encFilePlaintext = decryptVal(prevEncKey, encFileHash, encFileIv);
       List encFileList = jsonDecode(encFilePlaintext);
 
       /// Loop over each encrypted file and re-encrypt the content using
@@ -237,9 +269,13 @@ class EncryptClient {
         var fileInfo = await fetchFile(encFilePath);
         EncProfile encFile = EncProfile(fileInfo.toString());
         String encFileCont = encFile.getEncFileCont();
+        String encFileIv = encFile.getEncIvVal();
 
-        String plainFileCont = decryptVal(prevEncKey, encFileCont);
-        String newEncFileCont = encryptVal(newEncKey, plainFileCont);
+        String plainFileCont = decryptVal(prevEncKey, encFileCont, encFileIv);
+        List newEncFileRes = encryptVal(newEncKey, plainFileCont);
+        String newEncFileCont = newEncFileRes[0];
+        String newEncIv = newEncFileRes[1];
+        // AV: need to add iv update
 
         String encFileUrl = webId.replaceAll('profile/card#me', encFilePath);
         String dPopToken =
@@ -271,7 +307,11 @@ class EncryptClient {
 
       if (updateResponse == 'ok') {
         /// Update the list of locations of the encrypted files
-        String encFileHashNew = encryptVal(newEncKey, encFilePlaintext);
+        List encFileNewRes = encryptVal(newEncKey, encFilePlaintext);
+        String encFileHashNew = encFileNewRes[0];
+        String encFileIvNew = encFileNewRes[1];
+        // AV: need to update IV
+
         String dPopToken =
             genDpopToken(encKeyUrl, rsaKeyPair, publicKeyJwk, 'PATCH');
 
@@ -322,8 +362,9 @@ class EncryptClient {
         var fileInfo = await fetchFile(encFilePath);
         EncProfile encFile = EncProfile(fileInfo.toString());
         String encFileCont = encFile.getEncFileCont();
+        String encFileIv = encFile.getEncIvVal();
 
-        String plainFileCont = decryptVal(encKey, encFileCont);
+        String plainFileCont = decryptVal(encKey, encFileCont, encFileIv);
         String fileName = encFilePath.split('/').last;
 
         List filePathList = encFilePath.split('/');
@@ -463,7 +504,7 @@ class EncryptClient {
   }
 
   /// Encrypt a plaintext value
-  String encryptVal(String encKey, String plaintextVal) {
+  List encryptVal(String encKey, String plaintextVal) {
     final key = Key.fromUtf8(encKey);
     final iv = IV.fromLength(16);
     final encrypter = Encrypter(AES(key));
@@ -471,13 +512,14 @@ class EncryptClient {
     final encryptVal = encrypter.encrypt(plaintextVal, iv: iv);
     String encryptValStr = encryptVal.base64.toString();
 
-    return encryptValStr;
+    return [encryptValStr, iv.base64];
   }
 
   /// Decrypt a ciphertext value
-  String decryptVal(String encKey, String encVal) {
+  String decryptVal(String encKey, String encVal, String ivVal) {
     final key = Key.fromUtf8(encKey);
-    final iv = IV.fromLength(16);
+    //final iv = IV.fromLength(16);
+    final iv = IV.fromBase64(ivVal);
     final encrypter = Encrypter(AES(key));
 
     final ecc = Encrypted.from64(encVal);
@@ -536,11 +578,12 @@ class EncryptClient {
 
     EncProfile keyFile = EncProfile(keyInfo.toString());
     String encFileHash = keyFile.getEncFileHash();
+    String encFileIv = keyFile.getEncIvVal();
 
     if (encFileHash.isEmpty) {
       encFileList = [];
     } else {
-      String encFilePlaintext = decryptVal(encKey, encFileHash);
+      String encFilePlaintext = decryptVal(encKey, encFileHash, encFileIv);
       encFileList = jsonDecode(encFilePlaintext);
     }
 

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 // Project imports:
-import 'package:fluttersolidauth/models/Constants.dart';
+import 'package:fluttersolidencrypt/models/Constants.dart';
 
 // Widget to setup respostive designs
 class Responsive extends StatelessWidget {
@@ -11,10 +11,10 @@ class Responsive extends StatelessWidget {
   final Widget desktop;
 
   const Responsive({
-    Key key,
-    @required this.mobile,
-    @required this.tablet,
-    @required this.desktop,
+    Key? key,
+    required this.mobile,
+    required this.tablet,
+    required this.desktop,
   }) : super(key: key);
 
   static bool isMobile(BuildContext context) => screenWidth(context) < 650;

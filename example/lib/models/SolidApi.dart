@@ -8,7 +8,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:solid_auth/solid_auth.dart';
 
 // Project imports:
-import 'package:fluttersolidauth/models/GetRdfData.dart';
+import 'package:fluttersolidencrypt/models/GetRdfData.dart';
 
 const _chars =
     'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890_-';
@@ -75,7 +75,7 @@ Future<String> updateProfile(String profCardUrl, String accessToken,
 // Generate Sparql query
 String genSparqlQuery(
     String action, String subject, String predicate, String object,
-    {String prevObject, String format}) {
+    {String? prevObject, String? format}) {
   String query = '';
 
   switch (action) {
@@ -169,8 +169,6 @@ Future<List> getContainerList(Map authData, String containerUrl) async {
 
   List rdfDataPrefixList = homePageFile.dividePrvRdfData();
   List rdfDataList = rdfDataPrefixList[0];
-
-  print(rdfDataList);
 
   for (var i = 0; i < rdfDataList.length; i++) {
     if (rdfDataList[i].contains('ldp:contains')) {

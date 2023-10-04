@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.fluttersolidauth">
+    package="com.example.fluttersolidencrypt">
     <uses-permission android:name="android.permission.INTERNET" />
     <!--<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>-->
     <queries>
@@ -22,7 +22,7 @@
    </queries>
    <application
         android:usesCleartextTraffic="true"
-        android:label="fluttersolidauth"
+        android:label="fluttersolidencrypt"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

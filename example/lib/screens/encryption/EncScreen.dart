@@ -2,10 +2,11 @@
 import 'package:flutter/material.dart';
 
 // Project imports:
-import 'package:fluttersolidauth/models/Responsive.dart';
-import 'package:fluttersolidauth/screens/PrivateProfile.dart';
-import 'package:fluttersolidauth/models/Constants.dart';
-import 'package:fluttersolidauth/screens/encryption/EncProfile.dart';
+import 'package:fluttersolidencrypt/models/Responsive.dart';
+import 'package:fluttersolidencrypt/screens/PrivateProfile.dart';
+import 'package:fluttersolidencrypt/models/Constants.dart';
+import 'package:fluttersolidencrypt/screens/encryption/EncProfile.dart';
+import 'package:fluttersolidencrypt/screens/encryption/encSingleVal.dart';
 import 'package:solid_encrypt/solid_encrypt.dart';
 
 class EncScreen extends StatelessWidget {
@@ -16,25 +17,35 @@ class EncScreen extends StatelessWidget {
   EncryptClient encryptClient;
   String action; // User WebId
   EncScreen(
-      {Key key,
-      @required this.authData,
-      @required this.webId,
-      @required this.currPath,
-      @required this.encFileList,
-      @required this.encryptClient,
-      @required this.action})
+      {Key? key,
+      required this.authData,
+      required this.webId,
+      required this.currPath,
+      required this.encFileList,
+      required this.encryptClient,
+      required this.action})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // Assign loading screen
-    var loadingScreen = EncProfile(
-        authData: authData,
-        webId: webId,
-        currPath: currPath,
-        encFileList: encFileList,
-        action: action,
-        encryptClient: encryptClient);
+    var loadingScreen;
+    if (action == 'encryptVal') {
+      loadingScreen = EncSingleVal(
+          authData: authData,
+          webId: webId,
+          currPath: currPath,
+          action: action,
+          encryptClient: encryptClient);
+    } else {
+      loadingScreen = EncProfile(
+          authData: authData,
+          webId: webId,
+          currPath: currPath,
+          encFileList: encFileList,
+          action: action,
+          encryptClient: encryptClient);
+    }
 
     // Setup Scaffold to be responsive
     return Scaffold(

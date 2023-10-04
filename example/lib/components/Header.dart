@@ -5,18 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:solid_auth/solid_auth.dart';
 
 // Project imports:
-import 'package:fluttersolidauth/models/Constants.dart';
-import 'package:fluttersolidauth/models/Responsive.dart';
-import 'package:fluttersolidauth/screens/LoginScreen.dart';
+import 'package:fluttersolidencrypt/models/Constants.dart';
+import 'package:fluttersolidencrypt/models/Responsive.dart';
+import 'package:fluttersolidencrypt/screens/LoginScreen.dart';
 
 // Widget for the top horizontal bar
 class Header extends StatelessWidget {
   var mainDrawer;
   String logoutUrl;
   Header({
-    Key key,
+    Key? key,
     this.mainDrawer,
-    this.logoutUrl,
+    required this.logoutUrl,
   }) : super(key: key);
 
   @override

@@ -6,12 +6,12 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 //import 'package:websafe_svg/websafe_svg.dart';
 
 // Project imports:
-import 'package:fluttersolidauth/models/Constants.dart';
-import 'package:fluttersolidauth/screens/ProfileInfo.dart';
-import 'package:fluttersolidauth/components/Header.dart';
-import 'package:fluttersolidauth/models/SolidApi.dart' as rest_api;
+import 'package:fluttersolidencrypt/models/Constants.dart';
+import 'package:fluttersolidencrypt/screens/ProfileInfo.dart';
+import 'package:fluttersolidencrypt/components/Header.dart';
+import 'package:fluttersolidencrypt/models/SolidApi.dart' as rest_api;
 import 'package:solid_auth/solid_auth.dart';
-import 'package:fluttersolidauth/models/GetRdfData.dart';
+import 'package:fluttersolidencrypt/models/GetRdfData.dart';
 import 'package:solid_encrypt/solid_encrypt.dart';
 
 class PrivateProfile extends StatefulWidget {
@@ -20,10 +20,10 @@ class PrivateProfile extends StatefulWidget {
   EncryptClient encryptClient;
 
   PrivateProfile(
-      {Key key,
-      @required this.authData,
-      @required this.webId,
-      @required this.encryptClient})
+      {Key? key,
+      required this.authData,
+      required this.webId,
+      required this.encryptClient})
       : super(key: key);
 
   @override
@@ -181,7 +181,7 @@ class _PrivateProfileState extends State<PrivateProfile> {
             builder: (context, snapshot) {
               Widget returnVal;
               if (snapshot.connectionState == ConnectionState.done) {
-                returnVal = _loadedScreen(snapshot.data, webId, logoutUrl,
+                returnVal = _loadedScreen(snapshot.data!, webId, logoutUrl,
                     authData, widget.encryptClient);
               } else {
                 returnVal = _loadingScreen();

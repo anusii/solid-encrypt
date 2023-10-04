@@ -2,17 +2,17 @@
 import 'package:flutter/material.dart';
 
 // Project imports:
-import 'package:fluttersolidauth/models/Constants.dart';
-import 'package:fluttersolidauth/components/Header.dart';
-import 'package:fluttersolidauth/screens/ProfileInfo.dart';
-//import 'package:fluttersolidauth/models/RestAPI.dart';
+import 'package:fluttersolidencrypt/models/Constants.dart';
+import 'package:fluttersolidencrypt/components/Header.dart';
+import 'package:fluttersolidencrypt/screens/ProfileInfo.dart';
+//import 'package:fluttersolidencrypt/models/RestAPI.dart';
 import 'package:solid_auth/solid_auth.dart';
-import 'package:fluttersolidauth/models/GetRdfData.dart';
+import 'package:fluttersolidencrypt/models/GetRdfData.dart';
 
 class PublicProfile extends StatefulWidget {
   final String webId;
 
-  const PublicProfile({Key key, @required this.webId}) : super(key: key);
+  const PublicProfile({Key? key, required this.webId}) : super(key: key);
 
   @override
   State<PublicProfile> createState() => _PublicProfileState();
@@ -135,7 +135,7 @@ class _PublicProfileState extends State<PublicProfile> {
             builder: (context, snapshot) {
               Widget returnVal;
               if (snapshot.connectionState == ConnectionState.done) {
-                returnVal = _loadedScreen(snapshot.data, webId);
+                returnVal = _loadedScreen(snapshot.data!, webId);
               } else {
                 returnVal = _loadingScreen();
               }

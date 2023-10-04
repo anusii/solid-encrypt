@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 
 // Project imports:
-import 'package:fluttersolidauth/models/Responsive.dart';
-import 'package:fluttersolidauth/screens/PrivateProfile.dart';
-import 'package:fluttersolidauth/models/Constants.dart';
+import 'package:fluttersolidencrypt/models/Responsive.dart';
+import 'package:fluttersolidencrypt/screens/PrivateProfile.dart';
+import 'package:fluttersolidencrypt/models/Constants.dart';
 import 'package:solid_encrypt/solid_encrypt.dart';
 
 class PrivateScreen extends StatelessWidget {
@@ -12,10 +12,10 @@ class PrivateScreen extends StatelessWidget {
   String webId; // User WebId
   EncryptClient encryptClient;
   PrivateScreen(
-      {Key key,
-      @required this.authData,
-      @required this.webId,
-      @required this.encryptClient})
+      {Key? key,
+      required this.authData,
+      required this.webId,
+      required this.encryptClient})
       : super(key: key);
 
   @override

@@ -7,10 +7,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 // Project imports:
-import 'package:fluttersolidauth/models/Constants.dart';
-import 'package:fluttersolidauth/screens/PrivateScreen.dart';
-import 'package:fluttersolidauth/screens/PublicScreen.dart';
-//import 'package:fluttersolidauth/models/RestAPI.dart';
+import 'package:fluttersolidencrypt/models/Constants.dart';
+import 'package:fluttersolidencrypt/screens/PrivateScreen.dart';
+import 'package:fluttersolidencrypt/screens/PublicScreen.dart';
+//import 'package:fluttersolidencrypt/models/RestAPI.dart';
 //import 'package:solid_auth/solid_auth.dart';
 import 'package:solid_auth/solid_auth.dart';
 

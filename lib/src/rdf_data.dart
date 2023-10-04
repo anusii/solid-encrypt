@@ -59,6 +59,33 @@ class EncProfile {
     return encFileHash;
   }
 
+  String getEncIvVal() {
+    String encIvVal = '';
+
+    if (profileRdfStr.contains('@prefix')) {
+      var rdfDataList = profileRdfStr.split('\n');
+      for (var i = 0; i < rdfDataList.length; i++) {
+        String dataItem = rdfDataList[i];
+
+        if (dataItem.contains('sh-data:ivVal')) {
+          var itemList = dataItem.trim().split(' ');
+          encIvVal = itemList[1].trim().split('"')[1];
+        }
+      }
+    } else {
+      var rdfDataList = profileRdfStr.split('\n');
+      for (var i = 0; i < rdfDataList.length; i++) {
+        String dataItem = rdfDataList[i];
+
+        if (dataItem.contains(ivValPred)) {
+          var itemList = dataItem.trim().split(' ');
+          encIvVal = itemList[1].trim().split('"')[1];
+        }
+      }
+    }
+    return encIvVal;
+  }
+
   String getEncFileCont() {
     String encFileCont = '';
 
