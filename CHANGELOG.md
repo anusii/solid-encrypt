@@ -31,3 +31,7 @@ Initial version of the package
 ## 0.1.7
 
 * changes to the variable IV values update functions for encryption/decryption
+
+## 0.1.8
+
+* more changes to the variable IV values update functions for encryption/decryption

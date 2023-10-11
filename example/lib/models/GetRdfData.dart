@@ -1,3 +1,5 @@
+import 'package:rdflib/rdflib.dart';
+
 // Class to read the turtle files and extract values from triples
 class PodProfile {
   String profileRdfStr = '';
@@ -44,6 +46,12 @@ class PodProfile {
     var profileDataList = profileRdfStr.split('\n');
     for (var i = 0; i < profileDataList.length; i++) {
       String dataItem = profileDataList[i];
+
+      if (dataItem.contains('@prefix')) {
+        var itemList = dataItem.split(' ');
+        prefixList[itemList[1]] = itemList[2];
+      }
+
       if (dataItem.contains(';')) {
         var itemList = dataItem.split(';');
         for (var j = 0; j < itemList.length; j++) {
@@ -52,11 +60,6 @@ class PodProfile {
         }
       } else {
         rdfDataList.add(dataItem);
-      }
-
-      if (dataItem.contains('@prefix')) {
-        var itemList = dataItem.split(' ');
-        prefixList[itemList[1]] = itemList[2];
       }
     }
     return [rdfDataList, prefixList];
@@ -133,4 +136,38 @@ class PodProfile {
     }
     return personalInfo;
   }
+}
+
+List getContainersResources(String fileInfo) {
+  Graph g = Graph();
+  g.parseTurtle(fileInfo);
+  List<String> containerList = [];
+  List<String> resourceList = [];
+
+  for (Triple t in g.triples) {
+    /**
+     * Use
+     *  - t.sub -> Subject
+     *  - t.pre -> Predicate
+     *  - t.obj -> Object
+     */
+    String object = t.obj.value;
+    if (object.contains('#')) {
+      String subject = t.sub.value;
+      String attributeName = object.split('#')[1];
+      if (attributeName == 'BasicContainer') {
+        if (subject.isNotEmpty) {
+          containerList.add(subject.replaceAll('/', ''));
+        }
+      } else if (attributeName == 'Resource') {
+        if (!containerList.contains(subject.replaceAll('/', '')) &&
+            !resourceList.contains(subject) &&
+            subject.isNotEmpty) {
+          resourceList.add(subject);
+        }
+      }
+    }
+  }
+
+  return [containerList, resourceList];
 }

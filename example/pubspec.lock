@@ -455,6 +455,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.1"
+  rdflib:
+    dependency: "direct main"
+    description:
+      name: rdflib
+      sha256: "332255c7ab8de217ebde03aac910f24c4c16bc02dd16033d654dd78a8ca2837b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.4"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -474,7 +482,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.1.5"
+    version: "0.1.7"
   source_span:
     dependency: transitive
     description:

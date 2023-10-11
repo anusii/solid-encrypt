@@ -144,6 +144,9 @@ Future<List> getContainerList(Map authData, String containerUrl) async {
   String dPopTokenHome =
       genDpopToken(containerUrl, rsaKeyPair, publicKeyJwk, 'GET');
 
+  //containerUrl += 'profile/';
+  //print(containerUrl);
+
   final profResponse = await http.get(
     Uri.parse(containerUrl),
     headers: <String, String>{
@@ -153,6 +156,9 @@ Future<List> getContainerList(Map authData, String containerUrl) async {
       'DPoP': '$dPopTokenHome',
     },
   );
+
+  //print(containerUrl);
+  //print(profResponse.body);
 
   if (profResponse.statusCode == 200) {
     // If the server did return a 200 OK response,
@@ -165,13 +171,27 @@ Future<List> getContainerList(Map authData, String containerUrl) async {
     throw Exception('Failed to load profile data! Try again in a while.');
   }
 
+  //print(homePage);
+
   PodProfile homePageFile = PodProfile(homePage);
+  print('here');
+  //print(homePageFile);
+
+  // var contentList = getContainersResources(homePage);
+  // print('here');
+  // //print(contentList);
+
+  // List containerList = contentList.first;
+  // List resourceList = contentList[1];
 
   List rdfDataPrefixList = homePageFile.dividePrvRdfData();
   List rdfDataList = rdfDataPrefixList[0];
 
+  //print(homePage);
+
   for (var i = 0; i < rdfDataList.length; i++) {
     if (rdfDataList[i].contains('ldp:contains')) {
+      //print(rdfDataList[i]);
       var itemList = rdfDataList[i].split('<');
 
       for (var j = 0; j < itemList.length; j++) {

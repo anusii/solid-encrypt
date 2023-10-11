@@ -48,7 +48,8 @@ class EncryptClient {
     String keyFileBody =
         '<$subUrl> <http://purl.org/dc/terms/title> "Encryption keys";' +
             '\n    <$encKeyPred> "$sha224Result";' +
-            '\n    <$encFilePred> "".';
+            '\n    <$encFilePred> "";' +
+            '\n    <$ivValPred> "".';
     var fileCreateRes = await createItem(true, encKeyFileName, keyFileBody,
         fileLoc: encKeyFileDir);
 
