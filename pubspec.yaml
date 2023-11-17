@@ -1,6 +1,6 @@
 name: solid_encrypt
 description: A data encryption library which can be used to encrypt the content in turtle files stored in Solid PODs.
-version: 0.1.8
+version: 0.1.9
 homepage: https://github.com/anusii/solid-encrypt
 
 environment:
@@ -22,7 +22,7 @@ dependencies:
   localstorage: ^4.0.0+1
 
   # Http package
-  http: ^0.13.4
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
