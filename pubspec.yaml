@@ -1,6 +1,6 @@
 name: solid_encrypt
 description: A data encryption library which can be used to encrypt the content in turtle files stored in Solid PODs.
-version: 0.1.9
+version: 0.1.10
 homepage: https://github.com/anusii/solid-encrypt
 
 environment:
@@ -28,6 +28,15 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
+
+# This package supports all platforms listed below.
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  web:
+  windows:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

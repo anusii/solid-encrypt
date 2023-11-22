@@ -39,3 +39,7 @@ Initial version of the package
 ## 0.1.9
 
 * updating http package to the latest version
+
+## 0.1.10
+
+* Update the supported platforms
